@@ -19,8 +19,6 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.provider.MediaStore;
 
-import androidx.core.content.FileProvider;
-
 import android.database.Cursor;
 import android.provider.OpenableColumns;
 
@@ -274,7 +272,7 @@ class WebviewManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return FileProvider.getUriForFile(context, packageName + ".fileprovider", capturedFile);
+        return null;
     }
 
     private File createCapturedFile(String prefix, String suffix) throws IOException {
