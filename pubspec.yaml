@@ -1,4 +1,4 @@
-name: flutter_webview_plugin
+name: flutter_rect_webview_plugin
 description: Plugin that allow Flutter to communicate with a native Webview.
 authors:
 - Hadrien Lejard <hadrien.lejard@gmail.com>

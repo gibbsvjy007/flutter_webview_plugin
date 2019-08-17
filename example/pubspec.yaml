@@ -4,7 +4,7 @@ description: Demonstrates how to use the flutter_webview_plugin plugin.
 dependencies:
   flutter:
     sdk: flutter
-  flutter_webview_plugin:
+  flutter_rect_webview_plugin:
     path: ../
 
 flutter:
