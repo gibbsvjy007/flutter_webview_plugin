@@ -19,17 +19,8 @@ import java.util.regex.Pattern;
 
 public class BrowserClient extends WebViewClient {
     private Pattern invalidUrlPattern = null;
+    private Map<String, String> headers = new HashMap<>();
 
-    public BrowserClient() {
-        this(null);
-    }
-
-    public BrowserClient(String invalidUrlRegex) {
-        super();
-        if (invalidUrlRegex != null) {
-            invalidUrlPattern = Pattern.compile(invalidUrlRegex);
-        }
-    }
 
     public void updateInvalidUrlRegex(String invalidUrlRegex) {
         if (invalidUrlRegex != null) {
@@ -37,6 +28,10 @@ public class BrowserClient extends WebViewClient {
         } else {
             invalidUrlPattern = null;
         }
+    }
+
+    public void updateHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
 
     @Override
@@ -68,6 +63,7 @@ public class BrowserClient extends WebViewClient {
         // while returning false causes the WebView to continue loading the URL as usual.
         String url = request.getUrl().toString();
         boolean isInvalid = checkInvalidUrl(url);
+        view.loadUrl(url, headers);
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
         data.put("type", isInvalid ? "abortLoad" : "shouldStart");
@@ -80,6 +76,7 @@ public class BrowserClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         // returning true causes the current WebView to abort loading the URL,
         // while returning false causes the WebView to continue loading the URL as usual.
+        view.loadUrl(url, headers);
         boolean isInvalid = checkInvalidUrl(url);
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);

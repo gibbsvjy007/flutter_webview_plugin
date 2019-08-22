@@ -388,6 +388,7 @@ class WebviewManager {
         }
 
         webViewClient.updateInvalidUrlRegex(invalidUrlRegex);
+        webViewClient.updateHeaders(headers);
 
         if (geolocationEnabled) {
             webView.getSettings().setGeolocationEnabled(true);

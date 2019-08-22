@@ -9,6 +9,8 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
     BOOL _enableZoom;
     NSString* _invalidUrlRegex;
     NSMutableSet* _javaScriptChannelNames;
+    NSString* _userName;
+    NSString* _password;
 }
 @end
 
@@ -148,6 +150,8 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
     }
 
     _enableZoom = [withZoom boolValue];
+    _userName = call.arguments[@"userName"];
+    _password = call.arguments[@"password"];
 
     UIViewController* presentedViewController = self.viewController.presentedViewController;
     UIViewController* currentViewController = presentedViewController != nil ? presentedViewController : self.viewController;
@@ -305,6 +309,12 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 }
 
 #pragma mark -- WkWebView Delegate
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
+    NSURLCredential *credential = [[NSURLCredential alloc] initWithUser:_userName password:_password persistence:NSURLCredentialPersistenceForSession];
+    [challenge.sender useCredential:credential forAuthenticationChallenge:challenge];
+    completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+}
+
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
 
