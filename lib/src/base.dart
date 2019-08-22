@@ -269,12 +269,11 @@ class FlutterWebviewPlugin {
     final cookiesString = await evalJavascript('document.cookie');
     final cookies = <String, String>{};
 
-    if (cookiesString?.isNotEmpty == true) {
-      cookiesString.split(';').forEach((String cookie) {
-        final split = cookie.split('=');
-        cookies[split[0]] = split[1];
-      });
-    }
+    cookiesString.replaceAll('\"', '').split('; ').forEach((cookie) {
+      if (cookie.split('=').first.isNotEmpty) {
+        cookies[cookie.split('=').first] = cookie.split('=').last;
+      }
+    });
 
     return cookies;
   }
