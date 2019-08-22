@@ -12,6 +12,7 @@ class WebviewScaffold extends StatefulWidget {
     this.appBar,
     @required this.url,
     this.headers,
+    this.cookies,
     this.javascriptChannels,
     this.withJavascript,
     this.clearCache,
@@ -44,6 +45,7 @@ class WebviewScaffold extends StatefulWidget {
   final PreferredSizeWidget appBar;
   final String url;
   final Map<String, String> headers;
+  final Map<String, String> cookies;
   final List<String> javascriptChannels;
   final bool withJavascript;
   final bool clearCache;
@@ -151,6 +153,7 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
             webviewReference.launch(
               widget.url,
               headers: widget.headers,
+              cookies: widget.cookies,
               javascriptChannelNames: widget.javascriptChannels,
               withJavascript: widget.withJavascript,
               clearCache: widget.clearCache,

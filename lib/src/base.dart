@@ -129,6 +129,7 @@ class FlutterWebviewPlugin {
   Future<Null> launch(
     String url, {
     Map<String, String> headers,
+    Map<String, String> cookies,
     List<String> javascriptChannelNames,
     bool withJavascript,
     bool clearCache,
@@ -182,6 +183,10 @@ class FlutterWebviewPlugin {
       args['headers'] = headers;
     }
 
+    if (cookies != null) {
+      args['cookies'] = cookies;
+    }
+
     if (javascriptChannelNames != null) {
       args['javascriptChannelNames'] = javascriptChannelNames;
     }
@@ -229,6 +234,14 @@ class FlutterWebviewPlugin {
       args['headers'] = headers;
     }
     await _channel.invokeMethod('reloadUrl', args);
+  }
+
+  Future<Null> setCookies(String url, {Map<String, String> cookies}) async {
+    final args = <String, dynamic>{'url': url};
+    if (cookies != null) {
+      args['cookies'] = cookies;
+    }
+    await _channel.invokeMethod('setCookies', args);
   }
 
   // Clean cookies on WebView

@@ -352,6 +352,7 @@ class WebviewManager {
             String userAgent,
             String url,
             Map<String, String> headers,
+            Map<String, String> cookies,
             boolean withZoom,
             boolean displayZoomControls,
             boolean withLocalStorage,
@@ -408,6 +409,10 @@ class WebviewManager {
 
         if (clearCookies) {
             clearCookies();
+        }
+
+        if (cookies != null && !cookies.isEmpty()) {
+            setCookies(url, cookies);
         }
 
         if (userAgent != null) {
@@ -523,6 +528,12 @@ class WebviewManager {
     void stopLoading(MethodCall call, MethodChannel.Result result) {
         if (webView != null) {
             webView.stopLoading();
+        }
+    }
+
+    void setCookies(String url, Map<String, String> cookies) {
+        for (String key : cookies.keySet()) {
+            CookieManager.getInstance().setCookie(url, key + "=" + cookies.get(key));
         }
     }
 }

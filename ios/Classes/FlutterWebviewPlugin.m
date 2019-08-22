@@ -65,6 +65,8 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         result(nil);
     } else if ([@"cleanCookies" isEqualToString:call.method]) {
         [self cleanCookies];
+    } else if ([@"setCookies" isEqualToString:call.method]) {
+        [self setCookies:call];
     } else if ([@"back" isEqualToString:call.method]) {
         [self back];
         result(nil);
@@ -156,8 +158,30 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
     UIViewController* presentedViewController = self.viewController.presentedViewController;
     UIViewController* currentViewController = presentedViewController != nil ? presentedViewController : self.viewController;
     [currentViewController.view addSubview:self.webview];
-
+    [self setCookies:call];
     [self navigate:call];
+}
+
+- (void) setCookies:(FlutterMethodCall*)call {
+    NSString *url = call.arguments[@"url"];
+    NSDictionary *cookies = call.arguments[@"cookies"];
+    if (cookies != (id)[NSNull null]) {
+        [cookies enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL* stop) {
+            NSMutableDictionary *cookieProperties = [NSMutableDictionary dictionary];
+            [cookieProperties setObject:key forKey:NSHTTPCookieName];
+            [cookieProperties setObject:value forKey:NSHTTPCookieValue];
+            [cookieProperties setObject:url forKey:NSHTTPCookieDomain];
+            [cookieProperties setObject:url forKey:NSHTTPCookieOriginURL];
+            [cookieProperties setObject:@"/" forKey:NSHTTPCookiePath];
+            [cookieProperties setObject:@"0" forKey:NSHTTPCookieVersion];
+             // set expiration to one month from now or any NSDate of your choosing
+             // this makes the cookie sessionless and it will persist across web sessions and app launches
+             /// if you want the cookie to be destroyed when your app exits, don't set this
+            [cookieProperties setObject:[[NSDate date] dateByAddingTimeInterval:2629743] forKey:NSHTTPCookieExpires];
+            NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
+            [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
+        }];
+    }
 }
 
 - (CGRect)parseRect:(NSDictionary *)rect {

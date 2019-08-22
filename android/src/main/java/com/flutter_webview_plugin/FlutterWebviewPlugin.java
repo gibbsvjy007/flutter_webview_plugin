@@ -82,6 +82,9 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             case "cleanCookies":
                 cleanCookies(call, result);
                 break;
+            case "setCookies":
+                setCookies(call, result);
+                break;
             default:
                 result.notImplemented();
                 break;
@@ -102,6 +105,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         boolean supportMultipleWindows = call.argument("supportMultipleWindows");
         boolean appCacheEnabled = call.argument("appCacheEnabled");
         Map<String, String> headers = call.argument("headers");
+        Map<String, String> cookies = call.argument("cookies");
         boolean scrollBar = call.argument("scrollBar");
         boolean allowFileURLs = call.argument("allowFileURLs");
         boolean useWideViewPort = call.argument("useWideViewPort");
@@ -129,6 +133,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
                 userAgent,
                 url,
                 headers,
+                cookies,
                 withZoom,
                 displayZoomControls,
                 withLocalStorage,
@@ -261,6 +266,15 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             });
         } else {
             CookieManager.getInstance().removeAllCookie();
+        }
+        result.success(null);
+    }
+
+    private void setCookies(MethodCall call, final MethodChannel.Result result) {
+        if (webViewManager != null) {
+            String url = call.argument("url");
+            Map<String, String> cookies = call.argument("cookies");
+            webViewManager.setCookies(url, cookies);
         }
         result.success(null);
     }
