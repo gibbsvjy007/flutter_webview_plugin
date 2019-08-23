@@ -3,6 +3,7 @@ package com.flutter_webview_plugin;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.webkit.HttpAuthHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -19,7 +20,8 @@ import java.util.regex.Pattern;
 
 public class BrowserClient extends WebViewClient {
     private Pattern invalidUrlPattern = null;
-    private Map<String, String> headers = new HashMap<>();
+    private String userName;
+    private String password;
 
 
     public void updateInvalidUrlRegex(String invalidUrlRegex) {
@@ -30,8 +32,9 @@ public class BrowserClient extends WebViewClient {
         }
     }
 
-    public void updateHeaders(Map<String, String> headers) {
-        this.headers = headers;
+    public void updateAuth(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
     }
 
     @Override
@@ -63,7 +66,6 @@ public class BrowserClient extends WebViewClient {
         // while returning false causes the WebView to continue loading the URL as usual.
         String url = request.getUrl().toString();
         boolean isInvalid = checkInvalidUrl(url);
-        view.loadUrl(url, headers);
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
         data.put("type", isInvalid ? "abortLoad" : "shouldStart");
@@ -76,7 +78,6 @@ public class BrowserClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         // returning true causes the current WebView to abort loading the URL,
         // while returning false causes the WebView to continue loading the URL as usual.
-        view.loadUrl(url, headers);
         boolean isInvalid = checkInvalidUrl(url);
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
@@ -103,6 +104,12 @@ public class BrowserClient extends WebViewClient {
         data.put("url", failingUrl);
         data.put("code", Integer.toString(errorCode));
         FlutterWebviewPlugin.channel.invokeMethod("onHttpError", data);
+    }
+
+    @Override
+    public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
+        handler.proceed(userName, password);
+        super.onReceivedHttpAuthRequest(view, handler, host, realm);
     }
 
     private boolean checkInvalidUrl(String url) {
