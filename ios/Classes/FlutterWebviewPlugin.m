@@ -335,7 +335,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 #pragma mark -- WkWebView Delegate
 - (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
     NSURLCredential *credential = [[NSURLCredential alloc] initWithUser:_userName password:_password persistence:NSURLCredentialPersistenceForSession];
-    [challenge.sender useCredential:credential forAuthenticationChallenge:challenge];
+//    [challenge.sender useCredential:credential forAuthenticationChallenge:challenge];
     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
 }
 
