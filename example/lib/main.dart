@@ -90,18 +90,18 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription _onDestroy;
 
   // On urlChanged stream
-  StreamSubscription<String> _onUrlChanged;
+  StreamSubscription<WebViewUrlChanged> _onUrlChanged;
 
   // On urlChanged stream
   StreamSubscription<WebViewStateChanged> _onStateChanged;
 
   StreamSubscription<WebViewHttpError> _onHttpError;
 
-  StreamSubscription<double> _onProgressChanged;
+  StreamSubscription<WebViewScrollChanged> _onProgressChanged;
 
-  StreamSubscription<double> _onScrollYChanged;
+  StreamSubscription<WebViewScrollChanged> _onScrollYChanged;
 
-  StreamSubscription<double> _onScrollXChanged;
+  StreamSubscription<WebViewScrollChanged> _onScrollXChanged;
 
   StreamSubscription<JavascriptMessage> _onPostMessage;
 
@@ -133,37 +133,38 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     // Add a listener to on url changed
-    _onUrlChanged = flutterWebViewPlugin.onUrlChanged.listen((String url) {
+    _onUrlChanged =
+        flutterWebViewPlugin.onUrlChanged.listen((WebViewUrlChanged url) {
       if (mounted) {
         setState(() {
-          _history.add('onUrlChanged: $url');
+          _history.add('onUrlChanged: ${url.url}');
         });
       }
     });
 
-    _onProgressChanged =
-        flutterWebViewPlugin.onProgressChanged.listen((double progress) {
+    _onProgressChanged = flutterWebViewPlugin.onProgressChanged
+        .listen((WebViewScrollChanged progress) {
       if (mounted) {
         setState(() {
-          _history.add('onProgressChanged: $progress');
+          _history.add('onProgressChanged: ${progress.value}');
         });
       }
     });
 
     _onScrollYChanged =
-        flutterWebViewPlugin.onScrollYChanged.listen((double y) {
+        flutterWebViewPlugin.onScrollYChanged.listen((WebViewScrollChanged y) {
       if (mounted) {
         setState(() {
-          _history.add('Scroll in Y Direction: $y');
+          _history.add('Scroll in Y Direction: ${y.value}');
         });
       }
     });
 
     _onScrollXChanged =
-        flutterWebViewPlugin.onScrollXChanged.listen((double x) {
+        flutterWebViewPlugin.onScrollXChanged.listen((WebViewScrollChanged x) {
       if (mounted) {
         setState(() {
-          _history.add('Scroll in X Direction: $x');
+          _history.add('Scroll in X Direction: ${x.value}');
         });
       }
     });

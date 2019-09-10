@@ -25,35 +25,40 @@ class FlutterWebviewPlugin {
 
   final _channel = const MethodChannel(_kChannel);
 
-  final _onBack = StreamController<Null>.broadcast();
-  final _onDestroy = StreamController<Null>.broadcast();
-  final _onUrlChanged = StreamController<String>.broadcast();
+  final _onBack = StreamController<String>.broadcast();
+  final _onDestroy = StreamController<String>.broadcast();
+  final _onUrlChanged = StreamController<WebViewUrlChanged>.broadcast();
   final _onStateChanged = StreamController<WebViewStateChanged>.broadcast();
-  final _onScrollXChanged = StreamController<double>.broadcast();
-  final _onScrollYChanged = StreamController<double>.broadcast();
-  final _onProgressChanged = new StreamController<double>.broadcast();
+  final _onScrollXChanged = StreamController<WebViewScrollChanged>.broadcast();
+  final _onScrollYChanged = StreamController<WebViewScrollChanged>.broadcast();
+  final _onProgressChanged =
+      new StreamController<WebViewScrollChanged>.broadcast();
   final _onHttpError = StreamController<WebViewHttpError>.broadcast();
   final _onPostMessage = StreamController<JavascriptMessage>.broadcast();
 
   Future<Null> _handleMessages(MethodCall call) async {
     switch (call.method) {
       case 'onBack':
-        _onBack.add(null);
+        _onBack.add(call.arguments['keyWebView']);
         break;
       case 'onDestroy':
-        _onDestroy.add(null);
+        _onDestroy.add(call.arguments['keyWebView']);
         break;
       case 'onUrlChanged':
-        _onUrlChanged.add(call.arguments['url']);
+        _onUrlChanged.add(WebViewUrlChanged(
+            call.arguments['url'], call.arguments['keyWebView']));
         break;
       case 'onScrollXChanged':
-        _onScrollXChanged.add(call.arguments['xDirection']);
+        _onScrollXChanged.add(WebViewScrollChanged(
+            call.arguments['xDirection'], call.arguments['keyWebView']));
         break;
       case 'onScrollYChanged':
-        _onScrollYChanged.add(call.arguments['yDirection']);
+        _onScrollYChanged.add(WebViewScrollChanged(
+            call.arguments['yDirection'], call.arguments['keyWebView']));
         break;
       case 'onProgressChanged':
-        _onProgressChanged.add(call.arguments['progress']);
+        _onProgressChanged.add(WebViewScrollChanged(
+            call.arguments['progress'], call.arguments['keyWebView']));
         break;
       case 'onState':
         _onStateChanged.add(
@@ -63,25 +68,27 @@ class FlutterWebviewPlugin {
         );
         break;
       case 'onHttpError':
-        _onHttpError.add(
-            WebViewHttpError(call.arguments['code'], call.arguments['url']));
+        _onHttpError.add(WebViewHttpError(call.arguments['code'],
+            call.arguments['url'], call.arguments['keyWebView']));
         break;
       case 'javascriptChannelMessage':
         final JavascriptMessage javascriptMessage = JavascriptMessage(
-            call.arguments['channel'], call.arguments['message']);
+            call.arguments['channel'],
+            call.arguments['message'],
+            call.arguments['keyWebView']);
         _onPostMessage.add(javascriptMessage);
         break;
     }
   }
 
   /// Listening the OnDestroy LifeCycle Event for Android
-  Stream<Null> get onDestroy => _onDestroy.stream;
+  Stream<String> get onDestroy => _onDestroy.stream;
 
   /// Listening the back key press Event for Android
-  Stream<Null> get onBack => _onBack.stream;
+  Stream<String> get onBack => _onBack.stream;
 
   /// Listening url changed
-  Stream<String> get onUrlChanged => _onUrlChanged.stream;
+  Stream<WebViewUrlChanged> get onUrlChanged => _onUrlChanged.stream;
 
   /// Listening the onState Event for iOS WebView and Android
   /// content is Map for type: {shouldStart(iOS)|startLoad|finishLoad}
@@ -89,13 +96,14 @@ class FlutterWebviewPlugin {
   Stream<WebViewStateChanged> get onStateChanged => _onStateChanged.stream;
 
   /// Listening web view loading progress estimation, value between 0.0 and 1.0
-  Stream<double> get onProgressChanged => _onProgressChanged.stream;
+  Stream<WebViewScrollChanged> get onProgressChanged =>
+      _onProgressChanged.stream;
 
   /// Listening web view y position scroll change
-  Stream<double> get onScrollYChanged => _onScrollYChanged.stream;
+  Stream<WebViewScrollChanged> get onScrollYChanged => _onScrollYChanged.stream;
 
   /// Listening web view x position scroll change
-  Stream<double> get onScrollXChanged => _onScrollXChanged.stream;
+  Stream<WebViewScrollChanged> get onScrollXChanged => _onScrollXChanged.stream;
 
   Stream<WebViewHttpError> get onHttpError => _onHttpError.stream;
 
@@ -237,8 +245,8 @@ class FlutterWebviewPlugin {
       await _channel.invokeMethod('show', {'keyWebView': keyWebView});
 
   // Reload webview with a url
-  Future<Null> reloadUrl(String url,
-      {Map<String, String> headers, String keyWebView}) async {
+  Future<Null> reloadUrl(String url, String keyWebView,
+      {Map<String, String> headers}) async {
     final args = <String, dynamic>{'url': url};
     if (headers != null) {
       args['headers'] = headers;
@@ -249,8 +257,8 @@ class FlutterWebviewPlugin {
     await _channel.invokeMethod('reloadUrl', args);
   }
 
-  Future<Null> setCookies(String url,
-      {Map<String, String> cookies, String keyWebView}) async {
+  Future<Null> setCookies(String url, String keyWebView,
+      {Map<String, String> cookies}) async {
     final args = <String, dynamic>{'url': url};
     if (cookies != null) {
       args['cookies'] = cookies;
@@ -283,15 +291,19 @@ class FlutterWebviewPlugin {
   }
 
   Future<Map<String, String>> getCookies(String keyWebView) async {
-    final cookiesString =
-        await evalJavascript('document.cookie', keyWebView) ?? '';
     final cookies = <String, String>{};
+    try {
+      final cookiesString =
+          await evalJavascript('document.cookie', keyWebView) ?? '';
 
-    cookiesString.replaceAll('\"', '').split('; ').forEach((cookie) {
-      if (cookie.split('=').first.isNotEmpty) {
-        cookies[cookie.split('=').first] = cookie.split('=').last;
-      }
-    });
+      cookiesString.replaceAll('\"', '').split('; ').forEach((cookie) {
+        if (cookie.split('=').first.isNotEmpty) {
+          cookies[cookie.split('=').first] = cookie.split('=').last;
+        }
+      });
+    } catch (ex) {
+      print(ex);
+    }
 
     return cookies;
   }
@@ -311,7 +323,8 @@ class FlutterWebviewPlugin {
 }
 
 class WebViewStateChanged {
-  WebViewStateChanged(this.type, this.url, this.navigationType);
+  WebViewStateChanged(
+      this.type, this.url, this.navigationType, this.keyWebView);
 
   factory WebViewStateChanged.fromMap(Map<String, dynamic> map) {
     WebViewState t;
@@ -329,17 +342,34 @@ class WebViewStateChanged {
         t = WebViewState.abortLoad;
         break;
     }
-    return WebViewStateChanged(t, map['url'], map['navigationType']);
+    return WebViewStateChanged(
+        t, map['url'], map['navigationType'], map['keyWebView']);
   }
 
   final WebViewState type;
   final String url;
   final int navigationType;
+  final String keyWebView;
 }
 
 class WebViewHttpError {
-  WebViewHttpError(this.code, this.url);
+  WebViewHttpError(this.code, this.url, this.keyWebView);
 
   final String url;
   final String code;
+  final String keyWebView;
+}
+
+class WebViewUrlChanged {
+  WebViewUrlChanged(this.url, this.keyWebView);
+
+  final String url;
+  final String keyWebView;
+}
+
+class WebViewScrollChanged {
+  WebViewScrollChanged(this.value, this.keyWebView);
+
+  final double value;
+  final String keyWebView;
 }

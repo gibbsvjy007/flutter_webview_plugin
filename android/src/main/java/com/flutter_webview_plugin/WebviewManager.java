@@ -134,13 +134,15 @@ class WebviewManager {
         webView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("keyWebView", key);
                 if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     switch (keyCode) {
                         case KeyEvent.KEYCODE_BACK:
                             if (webView.canGoBack()) {
                                 webView.goBack();
                             } else {
-                                FlutterWebviewPlugin.channel.invokeMethod("onBack", null);
+                                FlutterWebviewPlugin.channel.invokeMethod("onBack", data);
                             }
                             return true;
                     }
@@ -154,9 +156,11 @@ class WebviewManager {
             public void onScroll(int x, int y, int oldx, int oldy) {
                 Map<String, Object> yDirection = new HashMap<>();
                 yDirection.put("yDirection", (double) y);
+                yDirection.put("keyWebView", key);
                 FlutterWebviewPlugin.channel.invokeMethod("onScrollYChanged", yDirection);
                 Map<String, Object> xDirection = new HashMap<>();
                 xDirection.put("xDirection", (double) x);
+                xDirection.put("keyWebView", key);
                 FlutterWebviewPlugin.channel.invokeMethod("onScrollXChanged", xDirection);
             }
         });
@@ -246,6 +250,7 @@ class WebviewManager {
             public void onProgressChanged(WebView view, int progress) {
                 Map<String, Object> args = new HashMap<>();
                 args.put("progress", progress / 100.0);
+                args.put("keyWebView", key);
                 FlutterWebviewPlugin.channel.invokeMethod("onProgressChanged", args);
             }
 
@@ -343,7 +348,7 @@ class WebviewManager {
     private void registerJavaScriptChannelNames(List<String> channelNames) {
         for (String channelName : channelNames) {
             webView.addJavascriptInterface(
-                    new JavaScriptChannel(FlutterWebviewPlugin.channel, channelName, platformThreadHandler), channelName);
+                    new JavaScriptChannel(FlutterWebviewPlugin.channel, channelName, key, platformThreadHandler), channelName);
         }
     }
 
@@ -394,7 +399,7 @@ class WebviewManager {
         }
 
         webViewClient.updateInvalidUrlRegex(invalidUrlRegex);
-        webViewClient.updateAuth(userName, password);
+        webViewClient.updateAuth(userName, password, key);
 
         if (geolocationEnabled) {
             webView.getSettings().setGeolocationEnabled(true);
@@ -454,7 +459,9 @@ class WebviewManager {
         }
 
         closed = true;
-        FlutterWebviewPlugin.channel.invokeMethod("onDestroy", null);
+        Map<String, Object> data = new HashMap<>();
+        data.put("keyWebView", key);
+        FlutterWebviewPlugin.channel.invokeMethod("onDestroy", data);
     }
 
     void close() {

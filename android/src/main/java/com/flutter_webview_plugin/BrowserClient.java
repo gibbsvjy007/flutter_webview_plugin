@@ -22,6 +22,7 @@ public class BrowserClient extends WebViewClient {
     private Pattern invalidUrlPattern = null;
     private String userName;
     private String password;
+    private String keyWebView;
 
 
     public void updateInvalidUrlRegex(String invalidUrlRegex) {
@@ -32,9 +33,10 @@ public class BrowserClient extends WebViewClient {
         }
     }
 
-    public void updateAuth(String userName, String password) {
+    public void updateAuth(String userName, String password, String keyWebView) {
         this.userName = userName;
         this.password = password;
+        this.keyWebView = keyWebView;
     }
 
     @Override
@@ -43,6 +45,7 @@ public class BrowserClient extends WebViewClient {
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
         data.put("type", "startLoad");
+        data.put("keyWebView", keyWebView);
         FlutterWebviewPlugin.channel.invokeMethod("onState", data);
     }
 
@@ -51,7 +54,7 @@ public class BrowserClient extends WebViewClient {
         super.onPageFinished(view, url);
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
-
+        data.put("keyWebView", keyWebView);
         FlutterWebviewPlugin.channel.invokeMethod("onUrlChanged", data);
 
         data.put("type", "finishLoad");
@@ -69,7 +72,7 @@ public class BrowserClient extends WebViewClient {
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
         data.put("type", isInvalid ? "abortLoad" : "shouldStart");
-
+        data.put("keyWebView", keyWebView);
         FlutterWebviewPlugin.channel.invokeMethod("onState", data);
         return isInvalid;
     }
@@ -82,7 +85,7 @@ public class BrowserClient extends WebViewClient {
         Map<String, Object> data = new HashMap<>();
         data.put("url", url);
         data.put("type", isInvalid ? "abortLoad" : "shouldStart");
-
+        data.put("keyWebView", keyWebView);
         FlutterWebviewPlugin.channel.invokeMethod("onState", data);
         return isInvalid;
     }
@@ -94,6 +97,7 @@ public class BrowserClient extends WebViewClient {
         Map<String, Object> data = new HashMap<>();
         data.put("url", request.getUrl().toString());
         data.put("code", Integer.toString(errorResponse.getStatusCode()));
+        data.put("keyWebView", keyWebView);
         FlutterWebviewPlugin.channel.invokeMethod("onHttpError", data);
     }
 
@@ -103,6 +107,7 @@ public class BrowserClient extends WebViewClient {
         Map<String, Object> data = new HashMap<>();
         data.put("url", failingUrl);
         data.put("code", Integer.toString(errorCode));
+        data.put("keyWebView", keyWebView);
         FlutterWebviewPlugin.channel.invokeMethod("onHttpError", data);
     }
 

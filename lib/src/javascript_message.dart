@@ -5,7 +5,8 @@ class JavascriptMessage {
   ///
   /// The `channel` parameter must not be null.
   /// The `message` parameter must not be null.
-  const JavascriptMessage(this.channel, this.message)
+  /// The `keyWebView` parameter must not be null.
+  const JavascriptMessage(this.channel, this.message, this.keyWebView)
       : assert(message != null, channel != null);
 
   /// The contents of the channel that was sent by the JavaScript code.
@@ -13,4 +14,7 @@ class JavascriptMessage {
 
   /// The contents of the message that was sent by the JavaScript code.
   final String message;
+
+  /// The contents of the keyWebView that was sent by the JavaScript code.
+  final String keyWebView;
 }
