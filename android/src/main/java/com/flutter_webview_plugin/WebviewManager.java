@@ -399,7 +399,7 @@ class WebviewManager {
         }
 
         webViewClient.updateInvalidUrlRegex(invalidUrlRegex);
-        webViewClient.updateAuth(userName, password, key);
+        webViewClient.updateAuth(activity, userName, password, key);
 
         if (geolocationEnabled) {
             webView.getSettings().setGeolocationEnabled(true);
@@ -496,6 +496,9 @@ class WebviewManager {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
         }
+        Map<String, Object> data = new HashMap<>();
+        data.put("keyWebView", key);
+        FlutterWebviewPlugin.channel.invokeMethod("onBack", data);
     }
 
     /**
