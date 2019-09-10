@@ -153,6 +153,7 @@ class FlutterWebviewPlugin {
     bool debuggingEnabled,
     String userName,
     String password,
+    String keyWebView,
   }) async {
     final args = <String, dynamic>{
       'url': url,
@@ -177,6 +178,7 @@ class FlutterWebviewPlugin {
       'debuggingEnabled': debuggingEnabled ?? false,
       'userName': userName ?? '',
       'password': password ?? '',
+      'keyWebView': keyWebView ?? '',
     };
 
     if (headers != null) {
@@ -203,54 +205,69 @@ class FlutterWebviewPlugin {
   }
 
   /// Execute Javascript inside webview
-  Future<String> evalJavascript(String code) async {
-    final res = await _channel.invokeMethod('eval', {'code': code});
+  Future<String> evalJavascript(String code, String keyWebView) async {
+    var args = {'code': code, 'keyWebView': keyWebView};
+    final res = await _channel.invokeMethod('eval', args);
     return res;
   }
 
   /// Close the Webview
   /// Will trigger the [onDestroy] event
-  Future<Null> close() async => await _channel.invokeMethod('close');
+  Future<Null> close(String keyWebView) async =>
+      await _channel.invokeMethod('close', {'keyWebView': keyWebView});
 
   /// Reloads the WebView.
-  Future<Null> reload() async => await _channel.invokeMethod('reload');
+  Future<Null> reload(String keyWebView) async =>
+      await _channel.invokeMethod('reload', {'keyWebView': keyWebView});
 
   /// Navigates back on the Webview.
-  Future<Null> goBack() async => await _channel.invokeMethod('back');
+  Future<Null> goBack(String keyWebView) async =>
+      await _channel.invokeMethod('back', {'keyWebView': keyWebView});
 
   /// Navigates forward on the Webview.
-  Future<Null> goForward() async => await _channel.invokeMethod('forward');
+  Future<Null> goForward(String keyWebView) async =>
+      await _channel.invokeMethod('forward', {'keyWebView': keyWebView});
 
   // Hides the webview
-  Future<Null> hide() async => await _channel.invokeMethod('hide');
+  Future<Null> hide(String keyWebView) async =>
+      await _channel.invokeMethod('hide', {'keyWebView': keyWebView});
 
   // Shows the webview
-  Future<Null> show() async => await _channel.invokeMethod('show');
+  Future<Null> show(String keyWebView) async =>
+      await _channel.invokeMethod('show', {'keyWebView': keyWebView});
 
   // Reload webview with a url
-  Future<Null> reloadUrl(String url, {Map<String, String> headers}) async {
+  Future<Null> reloadUrl(String url,
+      {Map<String, String> headers, String keyWebView}) async {
     final args = <String, dynamic>{'url': url};
     if (headers != null) {
       args['headers'] = headers;
     }
+    if (keyWebView != null) {
+      args['keyWebView'] = keyWebView;
+    }
     await _channel.invokeMethod('reloadUrl', args);
   }
 
-  Future<Null> setCookies(String url, {Map<String, String> cookies}) async {
+  Future<Null> setCookies(String url,
+      {Map<String, String> cookies, String keyWebView}) async {
     final args = <String, dynamic>{'url': url};
     if (cookies != null) {
       args['cookies'] = cookies;
+    }
+    if (keyWebView != null) {
+      args['keyWebView'] = keyWebView;
     }
     await _channel.invokeMethod('setCookies', args);
   }
 
   // Clean cookies on WebView
-  Future<Null> cleanCookies() async =>
-      await _channel.invokeMethod('cleanCookies');
+  Future<Null> cleanCookies(String keyWebView) async =>
+      await _channel.invokeMethod('cleanCookies', {'keyWebView': keyWebView});
 
   // Stops current loading process
-  Future<Null> stopLoading() async =>
-      await _channel.invokeMethod('stopLoading');
+  Future<Null> stopLoading(String keyWebView) async =>
+      await _channel.invokeMethod('stopLoading', {'keyWebView': keyWebView});
 
   /// Close all Streams
   void dispose() {
@@ -265,8 +282,9 @@ class FlutterWebviewPlugin {
     _instance = null;
   }
 
-  Future<Map<String, String>> getCookies() async {
-    final cookiesString = await evalJavascript('document.cookie') ?? '';
+  Future<Map<String, String>> getCookies(String keyWebView) async {
+    final cookiesString =
+        await evalJavascript('document.cookie', keyWebView) ?? '';
     final cookies = <String, String>{};
 
     cookiesString.replaceAll('\"', '').split('; ').forEach((cookie) {
@@ -279,7 +297,7 @@ class FlutterWebviewPlugin {
   }
 
   /// resize webview
-  Future<Null> resize(Rect rect) async {
+  Future<Null> resize(Rect rect, String keyWebView) async {
     final args = {};
     args['rect'] = {
       'left': rect.left,
@@ -287,6 +305,7 @@ class FlutterWebviewPlugin {
       'width': rect.width,
       'height': rect.height,
     };
+    args['keyWebView'] = keyWebView;
     await _channel.invokeMethod('resize', args);
   }
 }

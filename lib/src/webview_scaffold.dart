@@ -40,6 +40,7 @@ class WebviewScaffold extends StatefulWidget {
     this.debuggingEnabled = false,
     this.userName,
     this.password,
+    this.keyWebView,
   }) : super(key: key);
 
   final PreferredSizeWidget appBar;
@@ -73,6 +74,7 @@ class WebviewScaffold extends StatefulWidget {
   final bool debuggingEnabled;
   final String userName;
   final String password;
+  final String keyWebView;
 
   @override
   _WebviewScaffoldState createState() => _WebviewScaffoldState();
@@ -82,14 +84,13 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
   final webviewReference = FlutterWebviewPlugin();
   Rect _rect;
   Timer _resizeTimer;
-  StreamSubscription<WebViewStateChanged> _onStateChanged;
 
   var _onBack;
 
   @override
   void initState() {
     super.initState();
-    webviewReference.close();
+//    webviewReference.close();
 
     _onBack = webviewReference.onBack.listen((_) async {
       if (!mounted) return;
@@ -101,20 +102,11 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
         // Close the webview if it's on the route at the top of the stack.
         final isOnTopMostRoute = _topMostRoute == ModalRoute.of(context);
         if (isOnTopMostRoute) {
-          webviewReference.close();
+          webviewReference.close(widget.keyWebView);
         }
         Navigator.pop(context);
       }
     });
-
-    if (widget.hidden) {
-      _onStateChanged =
-          webviewReference.onStateChanged.listen((WebViewStateChanged state) {
-        if (state.type == WebViewState.finishLoad) {
-          webviewReference.show();
-        }
-      });
-    }
   }
 
   /// Equivalent to [Navigator.of(context)._history.last].
@@ -132,10 +124,7 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
     super.dispose();
     _onBack?.cancel();
     _resizeTimer?.cancel();
-    webviewReference.close();
-    if (widget.hidden) {
-      _onStateChanged.cancel();
-    }
+    webviewReference.close(widget.keyWebView);
     webviewReference.dispose();
   }
 
@@ -177,6 +166,7 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
               debuggingEnabled: widget.debuggingEnabled,
               userName: widget.userName,
               password: widget.password,
+              keyWebView: widget.keyWebView,
             );
           } else {
             if (_rect != value) {
@@ -184,7 +174,7 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
               _resizeTimer?.cancel();
               _resizeTimer = Timer(const Duration(milliseconds: 250), () {
                 // avoid resizing to fast when build is called multiple time
-                webviewReference.resize(_rect);
+                webviewReference.resize(_rect, widget.keyWebView);
               });
             }
           }

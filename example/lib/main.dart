@@ -10,6 +10,7 @@ const kAndroidUserAgent =
 String selectedUrl = 'https://damp-coast-35782.herokuapp.com';
 
 const List<String> jsChannels = ['Print'];
+const String keyWv = '1';
 
 void main() => runApp(MyApp());
 
@@ -47,19 +48,19 @@ class MyApp extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.arrow_back_ios),
                     onPressed: () {
-                      flutterWebViewPlugin.goBack();
+                      flutterWebViewPlugin.goBack(keyWv);
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.arrow_forward_ios),
                     onPressed: () {
-                      flutterWebViewPlugin.goForward();
+                      flutterWebViewPlugin.goForward(keyWv);
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.autorenew),
                     onPressed: () {
-                      flutterWebViewPlugin.reload();
+                      flutterWebViewPlugin.reload(keyWv);
                     },
                   ),
                 ],
@@ -116,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    flutterWebViewPlugin.close();
+    flutterWebViewPlugin.close(keyWv);
 
     _urlCtrl.addListener(() {
       selectedUrl = _urlCtrl.text;
@@ -265,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
             RaisedButton(
               onPressed: () {
                 final future =
-                    flutterWebViewPlugin.evalJavascript(_codeCtrl.text);
+                    flutterWebViewPlugin.evalJavascript(_codeCtrl.text, keyWv);
                 future.then((String result) {
                   setState(() {
                     _history.add('eval: $result');
@@ -279,13 +280,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 setState(() {
                   _history.clear();
                 });
-                flutterWebViewPlugin.close();
+                flutterWebViewPlugin.close(keyWv);
               },
               child: const Text('Close'),
             ),
             RaisedButton(
               onPressed: () {
-                flutterWebViewPlugin.getCookies().then((m) {
+                flutterWebViewPlugin.getCookies(keyWv).then((m) {
                   setState(() {
                     _history.add('cookies: $m');
                   });

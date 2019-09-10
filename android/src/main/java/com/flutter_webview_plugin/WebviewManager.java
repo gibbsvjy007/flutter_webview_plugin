@@ -47,6 +47,7 @@ class WebviewManager {
     private final static int FILECHOOSER_RESULTCODE = 1;
     private Uri fileUri;
     private Uri videoUri;
+    private String key;
 
     private long getFileSize(Uri fileUri) {
         Cursor returnCursor = context.getContentResolver().query(fileUri, null, null, null, null);
@@ -122,9 +123,10 @@ class WebviewManager {
     ResultHandler resultHandler;
     Context context;
 
-    WebviewManager(final Activity activity, final Context context, final List<String> channelNames) {
+    WebviewManager(final Activity activity, final Context context, final String key, final List<String> channelNames) {
         this.webView = new ObservableWebView(activity);
         this.activity = activity;
+        this.key = key;
         this.context = context;
         this.resultHandler = new ResultHandler();
         this.platformThreadHandler = new Handler(context.getMainLooper());
@@ -235,6 +237,7 @@ class WebviewManager {
                 Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
                 chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
                 chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+                chooserIntent.putExtra("keyWebView", key);
                 activity.startActivityForResult(chooserIntent, FILECHOOSER_RESULTCODE);
                 return true;
             }

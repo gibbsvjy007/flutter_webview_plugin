@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.view.Display;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.os.Build;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +27,11 @@ import io.flutter.plugin.common.PluginRegistry;
  */
 public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.ActivityResultListener {
     private Activity activity;
-    private WebviewManager webViewManager;
     private Context context;
     static MethodChannel channel;
     private static final String CHANNEL_NAME = "flutter_webview_plugin";
     private static final String JS_CHANNEL_NAMES_FIELD = "javascriptChannelNames";
+    private HashMap<String, WebviewManager> wvManagerHashMap = new HashMap<>();
 
     public static void registerWith(PluginRegistry.Registrar registrar) {
         channel = new MethodChannel(registrar.messenger(), CHANNEL_NAME);
@@ -114,43 +116,52 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         boolean debuggingEnabled = call.argument("debuggingEnabled");
         String userName = call.argument("userName");
         String password = call.argument("password");
+        String keyWebView = call.argument("keyWebView");
 
-        if (webViewManager == null || webViewManager.closed == true) {
+        if (!wvManagerHashMap.containsKey(keyWebView)) {
             Map<String, Object> arguments = (Map<String, Object>) call.arguments;
             List<String> channelNames = new ArrayList();
             if (arguments.containsKey(JS_CHANNEL_NAMES_FIELD)) {
                 channelNames = (List<String>) arguments.get(JS_CHANNEL_NAMES_FIELD);
             }
-            webViewManager = new WebviewManager(activity, context, channelNames);
+            WebviewManager webViewManager = new WebviewManager(activity, context, keyWebView, channelNames);
+            wvManagerHashMap.put(keyWebView, webViewManager);
+            FrameLayout.LayoutParams params = buildLayoutParams(call);
+
+            activity.addContentView(webViewManager.webView, params);
+
+            webViewManager.openUrl(withJavascript,
+                    clearCache,
+                    hidden,
+                    clearCookies,
+                    userAgent,
+                    url,
+                    headers,
+                    cookies,
+                    withZoom,
+                    displayZoomControls,
+                    withLocalStorage,
+                    withOverviewMode,
+                    scrollBar,
+                    supportMultipleWindows,
+                    appCacheEnabled,
+                    allowFileURLs,
+                    useWideViewPort,
+                    invalidUrlRegex,
+                    geolocationEnabled,
+                    debuggingEnabled,
+                    userName,
+                    password
+            );
         }
-
-        FrameLayout.LayoutParams params = buildLayoutParams(call);
-
-        activity.addContentView(webViewManager.webView, params);
-
-        webViewManager.openUrl(withJavascript,
-                clearCache,
-                hidden,
-                clearCookies,
-                userAgent,
-                url,
-                headers,
-                cookies,
-                withZoom,
-                displayZoomControls,
-                withLocalStorage,
-                withOverviewMode,
-                scrollBar,
-                supportMultipleWindows,
-                appCacheEnabled,
-                allowFileURLs,
-                useWideViewPort,
-                invalidUrlRegex,
-                geolocationEnabled,
-                debuggingEnabled,
-                userName,
-                password
-        );
+        for (Map.Entry<String, WebviewManager> entry : wvManagerHashMap.entrySet()
+        ) {
+            if (entry.getKey().equalsIgnoreCase(keyWebView)) {
+                entry.getValue().webView.setVisibility(View.VISIBLE);
+            } else {
+                entry.getValue().webView.setVisibility(View.GONE);
+            }
+        }
         result.success(null);
     }
 
@@ -175,6 +186,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private void stopLoading(MethodCall call, MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.stopLoading(call, result);
         }
@@ -182,9 +194,10 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private void close(MethodCall call, MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.close(call, result);
-            webViewManager = null;
+            wvManagerHashMap.remove(call.argument("keyWebView"));
         }
     }
 
@@ -192,6 +205,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
      * Navigates back on the Webview.
      */
     private void back(MethodCall call, MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.back(call, result);
         }
@@ -202,6 +216,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
      * Navigates forward on the Webview.
      */
     private void forward(MethodCall call, MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.forward(call, result);
         }
@@ -212,6 +227,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
      * Reloads the Webview.
      */
     private void reload(MethodCall call, MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.reload(call, result);
         }
@@ -219,6 +235,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private void reloadUrl(MethodCall call, MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             String url = call.argument("url");
             Map<String, String> headers = call.argument("headers");
@@ -233,12 +250,14 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private void eval(MethodCall call, final MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.eval(call, result);
         }
     }
 
     private void resize(MethodCall call, final MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             FrameLayout.LayoutParams params = buildLayoutParams(call);
             webViewManager.resize(params);
@@ -247,6 +266,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private void hide(MethodCall call, final MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.hide(call, result);
         }
@@ -254,6 +274,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private void show(MethodCall call, final MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.show(call, result);
         }
@@ -275,6 +296,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private void setCookies(MethodCall call, final MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             String url = call.argument("url");
             Map<String, String> cookies = call.argument("cookies");
@@ -290,6 +312,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
 
     @Override
     public boolean onActivityResult(int i, int i1, Intent intent) {
+        WebviewManager webViewManager = wvManagerHashMap.get(intent.getStringExtra("keyWebView"));
         if (webViewManager != null && webViewManager.resultHandler != null) {
             return webViewManager.resultHandler.handleResult(i, i1, intent);
         }
