@@ -244,6 +244,10 @@ class FlutterWebviewPlugin {
   Future<Null> show(String keyWebView) async =>
       await _channel.invokeMethod('show', {'keyWebView': keyWebView});
 
+  // Shows the webview
+  Future<Null> showToast(String keyWebView, String msg) async => await _channel
+      .invokeMethod('showToast', {'keyWebView': keyWebView, 'message': msg});
+
   // Reload webview with a url
   Future<Null> reloadUrl(String url, String keyWebView,
       {Map<String, String> headers}) async {

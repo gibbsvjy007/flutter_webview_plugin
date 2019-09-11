@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import android.provider.MediaStore;
 
 import android.database.Cursor;
 import android.provider.OpenableColumns;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -131,27 +134,6 @@ class WebviewManager {
         this.resultHandler = new ResultHandler();
         this.platformThreadHandler = new Handler(context.getMainLooper());
         webViewClient = new BrowserClient();
-        webView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("keyWebView", key);
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_BACK:
-                            if (webView.canGoBack()) {
-                                webView.goBack();
-                            } else {
-                                FlutterWebviewPlugin.channel.invokeMethod("onBack", data);
-                            }
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-        });
-
         ((ObservableWebView) webView).setOnScrollChangedCallback(new ObservableWebView.OnScrollChangedCallback() {
             public void onScroll(int x, int y, int oldx, int oldy) {
                 Map<String, Object> yDirection = new HashMap<>();
@@ -495,10 +477,10 @@ class WebviewManager {
     void back(MethodCall call, MethodChannel.Result result) {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
+            Map<String, Object> data = new HashMap<>();
+            data.put("keyWebView", key);
+            FlutterWebviewPlugin.channel.invokeMethod("onBack", data);
         }
-        Map<String, Object> data = new HashMap<>();
-        data.put("keyWebView", key);
-        FlutterWebviewPlugin.channel.invokeMethod("onBack", data);
     }
 
     /**
@@ -538,6 +520,13 @@ class WebviewManager {
         if (webView != null) {
             webView.setVisibility(View.VISIBLE);
         }
+    }
+
+    void showToast(MethodCall call, MethodChannel.Result result) {
+        Toast toast = Toast.makeText(activity, String.valueOf(call.argument("message")), Toast.LENGTH_LONG);
+        TextView v = toast.getView().findViewById(android.R.id.message);
+        if (v != null) v.setGravity(Gravity.CENTER);
+        toast.show();
     }
 
     void stopLoading(MethodCall call, MethodChannel.Result result) {

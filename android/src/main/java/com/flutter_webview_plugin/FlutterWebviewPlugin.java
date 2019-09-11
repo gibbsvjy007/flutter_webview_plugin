@@ -75,6 +75,9 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             case "show":
                 show(call, result);
                 break;
+            case "showToast":
+                showToast(call, result);
+                break;
             case "reloadUrl":
                 reloadUrl(call, result);
                 break;
@@ -277,6 +280,14 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
             webViewManager.show(call, result);
+        }
+        result.success(null);
+    }
+
+    private void showToast(MethodCall call, final MethodChannel.Result result) {
+        WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
+        if (webViewManager != null) {
+            webViewManager.showToast(call, result);
         }
         result.success(null);
     }

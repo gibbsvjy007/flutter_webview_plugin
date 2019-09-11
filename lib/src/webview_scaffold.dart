@@ -85,30 +85,6 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
   Rect _rect;
   Timer _resizeTimer;
 
-  var _onBack;
-
-  @override
-  void initState() {
-    super.initState();
-//    webviewReference.close();
-
-    _onBack = webviewReference.onBack.listen((_) async {
-      if (!mounted) return;
-
-      // The willPop/pop pair here is equivalent to Navigator.maybePop(),
-      // which is what's called from the flutter back button handler.
-      final pop = await _topMostRoute.willPop();
-      if (pop == RoutePopDisposition.pop) {
-        // Close the webview if it's on the route at the top of the stack.
-        final isOnTopMostRoute = _topMostRoute == ModalRoute.of(context);
-        if (isOnTopMostRoute) {
-          webviewReference.close(widget.keyWebView);
-        }
-        Navigator.pop(context);
-      }
-    });
-  }
-
   /// Equivalent to [Navigator.of(context)._history.last].
   Route<dynamic> get _topMostRoute {
     var topMost;
@@ -122,7 +98,6 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
   @override
   void dispose() {
     super.dispose();
-    _onBack?.cancel();
     _resizeTimer?.cancel();
     webviewReference.close(widget.keyWebView);
     webviewReference.dispose();
