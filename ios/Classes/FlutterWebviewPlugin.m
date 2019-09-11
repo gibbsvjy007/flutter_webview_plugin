@@ -165,7 +165,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 - (void) setCookies:(FlutterMethodCall*)call {
     NSString *url = call.arguments[@"url"];
     NSDictionary *cookies = call.arguments[@"cookies"];
-    if (cookies != (id)[NSNull null]) {
+    if (cookies != nil && url != nil) {
         [cookies enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL* stop) {
             NSMutableDictionary *cookieProperties = [NSMutableDictionary dictionary];
             [cookieProperties setObject:key forKey:NSHTTPCookieName];
@@ -239,8 +239,10 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
 - (void)resize:(FlutterMethodCall*)call {
     if (self.webview != nil) {
         NSDictionary *rect = call.arguments[@"rect"];
-        CGRect rc = [self parseRect:rect];
-        self.webview.frame = rc;
+        if (rect != nil) {
+            CGRect rc = [self parseRect:rect];
+            self.webview.frame = rc;
+        }
     }
 }
 
