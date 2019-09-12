@@ -30,6 +30,7 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         WebViewManager* wvManager = self.webMangerDict[call.arguments[@"keyWebView"]];
         if (wvManager != nil) {
             [wvManager closeWebView];
+            [self.webMangerDict removeObjectForKey:call.arguments[@"keyWebView"]];
         }
         result(nil);
     } else if ([@"eval" isEqualToString:call.method]) {

@@ -263,6 +263,7 @@ completionHandler:(void (^_Nullable)(BOOL response))completionHandler {
 - (void)back {
     if (self.webview != nil) {
         [self.webview goBack];
+        [_methodChannel invokeMethod:@"onBack" arguments:@{@"keyWebView":_keyWebView}];
     }
 }
 - (void)forward {
@@ -375,7 +376,8 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     for (NSString* channelName in channelNames) {
         FLTJavaScriptChannel* _channel =
         [[FLTJavaScriptChannel alloc] initWithMethodChannel: _methodChannel
-                                      javaScriptChannelName:channelName];
+                                      javaScriptChannelName:channelName
+                                      keyWebView:_keyWebView];
         [userContentController addScriptMessageHandler:_channel name:channelName];
         NSString* wrapperSource = [NSString
                                    stringWithFormat:@"window.%@ = webkit.messageHandlers.%@;", channelName, channelName];
