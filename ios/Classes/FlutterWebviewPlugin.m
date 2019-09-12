@@ -39,6 +39,13 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
                 result(response);
             }];
         }
+    } else if ([@"canGoBack" isEqualToString:call.method]) {
+        WebViewManager* wvManager = self.webMangerDict[call.arguments[@"keyWebView"]];
+        if (wvManager != nil) {
+            [wvManager canGoBack:call completionHandler:^(BOOL canGoBack) {
+                result([NSNumber numberWithBool:canGoBack]);
+            }];
+        }
     } else if ([@"resize" isEqualToString:call.method]) {
         WebViewManager* wvManager = self.webMangerDict[call.arguments[@"keyWebView"]];
         if (wvManager != nil) {

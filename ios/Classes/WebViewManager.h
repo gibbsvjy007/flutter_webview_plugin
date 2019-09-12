@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) closeWebView;
 - (void) evalJavascript:(FlutterMethodCall*)call
      completionHandler:(void (^_Nullable)(NSString * response))completionHandler;
+- (void)canGoBack:(FlutterMethodCall*)call
+     completionHandler:(void (^_Nullable)(BOOL response))completionHandler;
 - (void) resize:(FlutterMethodCall*)call;
 - (void) reloadUrl:(FlutterMethodCall*)call;
 - (void) stopLoading;

@@ -190,6 +190,16 @@
     }
 }
 
+- (void)canGoBack:(FlutterMethodCall*)call
+completionHandler:(void (^_Nullable)(BOOL response))completionHandler {
+    if (self.webview != nil) {
+        BOOL canGoBack = [self.webview canGoBack];
+        completionHandler(canGoBack);
+    } else {
+        completionHandler(false);
+    }
+}
+
 - (void)resize:(FlutterMethodCall*)call {
     if (self.webview != nil) {
         NSDictionary *rect = call.arguments[@"rect"];
