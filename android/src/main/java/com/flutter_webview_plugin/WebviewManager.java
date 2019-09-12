@@ -1,14 +1,18 @@
 package com.flutter_webview_plugin;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
@@ -18,21 +22,17 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
-import android.provider.MediaStore;
-
-import android.database.Cursor;
-import android.provider.OpenableColumns;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.io.File;
-import java.util.Date;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -524,8 +524,16 @@ class WebviewManager {
 
     void showToast(MethodCall call, MethodChannel.Result result) {
         Toast toast = Toast.makeText(activity, String.valueOf(call.argument("message")), Toast.LENGTH_LONG);
-        TextView v = toast.getView().findViewById(android.R.id.message);
-        if (v != null) v.setGravity(Gravity.CENTER);
+        View toastView = toast.getView();
+        if (toastView != null) {
+            toastView.getBackground().setColorFilter(Color.parseColor("#E6000000"), PorterDuff.Mode.SRC_IN);
+            TextView v = toastView.findViewById(android.R.id.message);
+            if (v != null) {
+                v.setTextColor(Color.WHITE);
+                v.setGravity(Gravity.CENTER);
+            }
+
+        }
         toast.show();
     }
 

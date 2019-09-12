@@ -299,7 +299,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         boolean canBack = false;
         WebviewManager webViewManager = wvManagerHashMap.get(call.argument("keyWebView"));
         if (webViewManager != null) {
-            canBack = webViewManager.webView.canGoBack();
+            canBack = webViewManager.canGoBack();
         }
         result.success(canBack);
     }
