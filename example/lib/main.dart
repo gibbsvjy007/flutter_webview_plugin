@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/': (_) => const MyHomePage(title: 'Flutter WebView Demo'),
         '/widget': (_) {
           return WebviewScaffold(
+            keyWebView: keyWv,
             url: selectedUrl,
             javascriptChannels: jsChannels,
             appBar: AppBar(
