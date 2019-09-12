@@ -228,6 +228,10 @@ class FlutterWebviewPlugin {
   Future<Null> reload(String keyWebView) async =>
       await _channel.invokeMethod('reload', {'keyWebView': keyWebView});
 
+  /// Check WebView can go back.
+  Future<bool> canGoBack(String keyWebView) async =>
+      await _channel.invokeMethod('canGoBack', {'keyWebView': keyWebView});
+
   /// Navigates back on the Webview.
   Future<Null> goBack(String keyWebView) async =>
       await _channel.invokeMethod('back', {'keyWebView': keyWebView});
