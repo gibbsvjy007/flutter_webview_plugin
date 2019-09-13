@@ -357,16 +357,14 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
-    if (error != nil) {
-        [_methodChannel invokeMethod:@"onError" arguments:@{@"code": [NSString stringWithFormat:@"%ld", error.code], @"error": error.localizedDescription, @"keyWebView":_keyWebView}];
-    }
+    [_methodChannel invokeMethod:@"onError" arguments:@{@"code": [NSString stringWithFormat:@"%d", error == nil ? 500 : error.code], @"error": error == nil ? @"" : error.localizedDescription, @"keyWebView":_keyWebView}];
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
     if ([navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse * response = (NSHTTPURLResponse *)navigationResponse.response;
         
-        [_methodChannel invokeMethod:@"onHttpError" arguments:@{@"code": [NSString stringWithFormat:@"%ld", response.statusCode], @"url": webView.URL.absoluteString, @"keyWebView":_keyWebView}];
+        [_methodChannel invokeMethod:@"onHttpError" arguments:@{@"code": [NSString stringWithFormat:@"%d", response.statusCode], @"url": webView.URL.absoluteString, @"keyWebView":_keyWebView}];
     }
     decisionHandler(WKNavigationResponsePolicyAllow);
 }
