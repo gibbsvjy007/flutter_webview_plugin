@@ -85,22 +85,11 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
   Rect _rect;
   Timer _resizeTimer;
 
-  /// Equivalent to [Navigator.of(context)._history.last].
-  Route<dynamic> get _topMostRoute {
-    var topMost;
-    Navigator.popUntil(context, (route) {
-      topMost = route;
-      return true;
-    });
-    return topMost;
-  }
-
   @override
   void dispose() {
     super.dispose();
     _resizeTimer?.cancel();
     webviewReference.close(widget.keyWebView);
-    webviewReference.dispose();
   }
 
   @override
