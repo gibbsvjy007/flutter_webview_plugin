@@ -7,9 +7,16 @@ import 'package:flutter_rect_webview_plugin/flutter_rect_webview_plugin.dart';
 const kAndroidUserAgent =
     'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
 
-String selectedUrl = 'https://damp-coast-35782.herokuapp.com';
+String selectedUrl = 'https://flutter.io';
 
-const List<String> jsChannels = ['Print'];
+// ignore: prefer_collection_literals
+final Set<JavascriptChannel> jsChannels = [
+  JavascriptChannel(
+      name: 'Print',
+      onMessageReceived: (JavascriptMessage message) {
+        print(message.message);
+      }),
+].toSet();
 
 void main() => runApp(MyApp());
 
@@ -102,8 +109,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   StreamSubscription<double> _onScrollXChanged;
 
-  StreamSubscription<JavascriptMessage> _onPostMessage;
-
   final _urlCtrl = TextEditingController(text: selectedUrl);
 
   final _codeCtrl = TextEditingController(text: 'window.navigator.userAgent');
@@ -184,15 +189,6 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
-
-    _onPostMessage =
-        flutterWebViewPlugin.onPostMessage.listen((JavascriptMessage message) {
-      if (mounted) {
-        setState(() {
-          _history.add('onPostMessage: ${message.channel} ${message.message}');
-        });
-      }
-    });
   }
 
   @override
@@ -205,7 +201,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _onProgressChanged.cancel();
     _onScrollXChanged.cancel();
     _onScrollYChanged.cancel();
-    _onPostMessage.cancel();
 
     flutterWebViewPlugin.dispose();
 

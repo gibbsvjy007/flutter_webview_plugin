@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_webview_plugin/src/javascript_channel.dart';
 
 import 'javascript_message.dart';
 
@@ -34,6 +35,11 @@ class FlutterWebviewPlugin {
   final _onProgressChanged = new StreamController<double>.broadcast();
   final _onHttpError = StreamController<WebViewHttpError>.broadcast();
   final _onPostMessage = StreamController<JavascriptMessage>.broadcast();
+
+  final Map<String, JavascriptChannel> _javascriptChannels =
+      // ignoring warning as min SDK version doesn't support collection literals yet
+      // ignore: prefer_collection_literals
+      Map<String, JavascriptChannel>();
 
   Future<Null> _handleMessages(MethodCall call) async {
     switch (call.method) {
@@ -67,9 +73,8 @@ class FlutterWebviewPlugin {
             WebViewHttpError(call.arguments['code'], call.arguments['url']));
         break;
       case 'javascriptChannelMessage':
-        final JavascriptMessage javascriptMessage = JavascriptMessage(
+        _handleJavascriptChannelMessage(
             call.arguments['channel'], call.arguments['message']);
-        _onPostMessage.add(javascriptMessage);
         break;
     }
   }
@@ -99,8 +104,6 @@ class FlutterWebviewPlugin {
 
   Stream<WebViewHttpError> get onHttpError => _onHttpError.stream;
 
-  Stream<JavascriptMessage> get onPostMessage => _onPostMessage.stream;
-
   /// Start the Webview with [url]
   /// - [headers] specify additional HTTP headers
   /// - [withJavascript] enable Javascript or not for the Webview
@@ -129,8 +132,7 @@ class FlutterWebviewPlugin {
   Future<Null> launch(
     String url, {
     Map<String, String> headers,
-    Map<String, String> cookies,
-    List<String> javascriptChannelNames,
+    Set<JavascriptChannel> javascriptChannels,
     bool withJavascript,
     bool clearCache,
     bool clearCookies,
@@ -151,8 +153,6 @@ class FlutterWebviewPlugin {
     String invalidUrlRegex,
     bool geolocationEnabled,
     bool debuggingEnabled,
-    String userName,
-    String password,
   }) async {
     final args = <String, dynamic>{
       'url': url,
@@ -175,21 +175,26 @@ class FlutterWebviewPlugin {
       'geolocationEnabled': geolocationEnabled ?? false,
       'withOverviewMode': withOverviewMode ?? false,
       'debuggingEnabled': debuggingEnabled ?? false,
-      'userName': userName ?? '',
-      'password': password ?? '',
     };
 
     if (headers != null) {
       args['headers'] = headers;
     }
 
-    if (cookies != null) {
-      args['cookies'] = cookies;
+    _assertJavascriptChannelNamesAreUnique(javascriptChannels);
+
+    if (javascriptChannels != null) {
+      javascriptChannels.forEach((channel) {
+        _javascriptChannels[channel.name] = channel;
+      });
+    } else {
+      if (_javascriptChannels.isNotEmpty) {
+        _javascriptChannels.clear();
+      }
     }
 
-    if (javascriptChannelNames != null) {
-      args['javascriptChannelNames'] = javascriptChannelNames;
-    }
+    args['javascriptChannelNames'] =
+        _extractJavascriptChannelNames(javascriptChannels).toList();
 
     if (rect != null) {
       args['rect'] = {
@@ -210,7 +215,10 @@ class FlutterWebviewPlugin {
 
   /// Close the Webview
   /// Will trigger the [onDestroy] event
-  Future<Null> close() async => await _channel.invokeMethod('close');
+  Future<Null> close() async {
+    _javascriptChannels.clear();
+    await _channel.invokeMethod('close');
+  }
 
   /// Reloads the WebView.
   Future<Null> reload() async => await _channel.invokeMethod('reload');
@@ -236,14 +244,6 @@ class FlutterWebviewPlugin {
     await _channel.invokeMethod('reloadUrl', args);
   }
 
-  Future<Null> setCookies(String url, {Map<String, String> cookies}) async {
-    final args = <String, dynamic>{'url': url};
-    if (cookies != null) {
-      args['cookies'] = cookies;
-    }
-    await _channel.invokeMethod('setCookies', args);
-  }
-
   // Clean cookies on WebView
   Future<Null> cleanCookies() async =>
       await _channel.invokeMethod('cleanCookies');
@@ -266,14 +266,15 @@ class FlutterWebviewPlugin {
   }
 
   Future<Map<String, String>> getCookies() async {
-    final cookiesString = await evalJavascript('document.cookie') ?? '';
+    final cookiesString = await evalJavascript('document.cookie');
     final cookies = <String, String>{};
 
-    cookiesString.replaceAll('\"', '').split('; ').forEach((cookie) {
-      if (cookie.split('=').first.isNotEmpty) {
-        cookies[cookie.split('=').first] = cookie.split('=').last;
-      }
-    });
+    if (cookiesString?.isNotEmpty == true) {
+      cookiesString.split(';').forEach((String cookie) {
+        final split = cookie.split('=');
+        cookies[split[0]] = split[1];
+      });
+    }
 
     return cookies;
   }
@@ -288,6 +289,29 @@ class FlutterWebviewPlugin {
       'height': rect.height,
     };
     await _channel.invokeMethod('resize', args);
+  }
+
+  Set<String> _extractJavascriptChannelNames(Set<JavascriptChannel> channels) {
+    final Set<String> channelNames = channels == null
+        // ignore: prefer_collection_literals
+        ? Set<String>()
+        : channels.map((JavascriptChannel channel) => channel.name).toSet();
+    return channelNames;
+  }
+
+  void _handleJavascriptChannelMessage(
+      final String channelName, final String message) {
+    _javascriptChannels[channelName]
+        .onMessageReceived(JavascriptMessage(message));
+  }
+
+  void _assertJavascriptChannelNamesAreUnique(
+      final Set<JavascriptChannel> channels) {
+    if (channels == null || channels.isEmpty) {
+      return;
+    }
+
+    assert(_extractJavascriptChannelNames(channels).length == channels.length);
   }
 }
 
