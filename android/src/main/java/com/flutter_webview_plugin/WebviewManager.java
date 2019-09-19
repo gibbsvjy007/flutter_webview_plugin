@@ -47,7 +47,6 @@ class WebviewManager {
 
     private ValueCallback<Uri> mUploadMessage;
     private ValueCallback<Uri[]> mUploadMessageArray;
-    private final static int FILECHOOSER_RESULTCODE = 1;
     private Uri fileUri;
     private Uri videoUri;
     private String key;
@@ -64,7 +63,7 @@ class WebviewManager {
         public boolean handleResult(int requestCode, int resultCode, Intent intent) {
             boolean handled = false;
             if (Build.VERSION.SDK_INT >= 21) {
-                if (requestCode == FILECHOOSER_RESULTCODE) {
+                if (requestCode == Integer.parseInt(key)) {
                     Uri[] results = null;
                     if (resultCode == Activity.RESULT_OK) {
                         if (fileUri != null && getFileSize(fileUri) > 0) {
@@ -82,7 +81,7 @@ class WebviewManager {
                     handled = true;
                 }
             } else {
-                if (requestCode == FILECHOOSER_RESULTCODE) {
+                if (requestCode == Integer.parseInt(key)) {
                     Uri result = null;
                     if (resultCode == RESULT_OK && intent != null) {
                         result = intent.getData();
@@ -158,7 +157,7 @@ class WebviewManager {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
                 i.setType("image/*");
-                activity.startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
+                activity.startActivityForResult(Intent.createChooser(i, "File Chooser"), Integer.parseInt(key));
 
             }
 
@@ -170,7 +169,7 @@ class WebviewManager {
                 i.setType("*/*");
                 activity.startActivityForResult(
                         Intent.createChooser(i, "File Browser"),
-                        FILECHOOSER_RESULTCODE);
+                        Integer.parseInt(key));
             }
 
             //For Android 4.1
@@ -179,7 +178,7 @@ class WebviewManager {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
                 i.setType("image/*");
-                activity.startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
+                activity.startActivityForResult(Intent.createChooser(i, "File Chooser"), Integer.parseInt(key));
 
             }
 
@@ -223,8 +222,7 @@ class WebviewManager {
                 Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
                 chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
                 chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-                chooserIntent.putExtra("keyWebView", key);
-                activity.startActivityForResult(chooserIntent, FILECHOOSER_RESULTCODE);
+                activity.startActivityForResult(chooserIntent, Integer.parseInt(key));
                 return true;
             }
 
