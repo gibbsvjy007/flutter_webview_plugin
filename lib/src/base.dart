@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_webview_plugin/src/javascript_channel.dart';
 
+import 'javascript_channel.dart';
 import 'javascript_message.dart';
 
 const _kChannel = 'flutter_webview_plugin';

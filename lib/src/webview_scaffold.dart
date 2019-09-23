@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_webview_plugin/src/javascript_channel.dart';
 
 import 'base.dart';
+import 'javascript_channel.dart';
 
 class WebviewScaffold extends StatefulWidget {
   const WebviewScaffold({
