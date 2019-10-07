@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -148,6 +149,19 @@ class WebviewManager {
 
         webView.setWebViewClient(webViewClient);
         webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(PermissionRequest request) {
+                if (Build.VERSION.SDK_INT >= 21) {
+                    String[] resources = request.getResources();
+                    for (int i = 0; i < resources.length; i++) {
+                        if (PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID.equals(resources[i])) {
+                            request.grant(resources);
+                            return;
+                        }
+                    }
+                }
+                super.onPermissionRequest(request);
+            }
             //The undocumented magic method override
             //Eclipse will swear at you if you try to put @Override here
             // For Android 3.0+
