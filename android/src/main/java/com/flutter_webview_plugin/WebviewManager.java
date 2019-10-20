@@ -427,6 +427,7 @@ class WebviewManager {
         }
 
         if (ajaxInterceptor) {
+            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
             initAjaxInterceptor();
         }
 
