@@ -566,6 +566,9 @@ class WebviewManager {
             "    onReadyStateChange;\n" +
             "function openReplacement(method, url, async, user, password) {\n" +
             "    var syncMode = async !== false ? 'async' : 'sync'; ajaxInterceptor.showToast('OPEN'); \n" +
+            " if (url === '/api/getFareEstimates') {\n" +
+            "        console.log('Preparing ' + syncMode + ' HTTP request : ' + method + ' ' + url);\n" +
+            " }"+
             "    return open.apply(this, arguments);\n" +
             "}\n" +
             "function sendReplacement(data) {\n" +
