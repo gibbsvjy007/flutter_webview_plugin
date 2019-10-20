@@ -426,18 +426,18 @@ class WebviewManager {
             webView.setVerticalScrollBarEnabled(false);
         }
 
-        if (ajaxInterceptor) {
-            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
-            initAjaxInterceptor();
-        }
-
         if (headers != null) {
             webView.loadUrl(url, headers);
         } else {
             webView.loadUrl(url);
         }
 
-
+        if (ajaxInterceptor) {
+            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
+            initAjaxInterceptor();
+            Log.w("RELOAD", "Reloading url");
+            reloadUrl(url);
+        }
     }
 
     void reloadUrl(String url) {
