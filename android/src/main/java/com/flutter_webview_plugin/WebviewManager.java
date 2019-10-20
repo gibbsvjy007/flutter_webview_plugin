@@ -435,8 +435,6 @@ class WebviewManager {
         if (ajaxInterceptor) {
             Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
             initAjaxInterceptor();
-            Log.w("RELOAD", "Reloading url");
-            reloadUrl(url);
         }
     }
 
