@@ -22,7 +22,8 @@ import android.widget.FrameLayout;
 import android.provider.MediaStore;
 import android.widget.Toast;
 import android.webkit.JavascriptInterface;
-
+import android.os.Handler;
+import android.os.Looper;
 import androidx.core.content.FileProvider;
 
 import android.database.Cursor;
@@ -258,7 +259,6 @@ class WebviewManager {
             }
         });
         registerJavaScriptChannelNames(channelNames);
-        webView.addJavascriptInterface(new WebAppInterface(), "Android");
     }
 
     private Uri getOutputFilename(String intentType) {
@@ -603,7 +603,7 @@ class WebviewManager {
     void initAjaxInterceptor() {
         if (webView != null) {
             Log.w("initAjaxInterceptor", "Method invoked");
-
+            webView.addJavascriptInterface(new WebAppInterface(), "Android");
             webView.addJavascriptInterface(new AjaxInterceptor(context), "ajaxInterceptor");
             Log.w("initAjaxInterceptor", "AJAX Start");
             Toast.makeText(context, "AJAX Begin", Toast. LENGTH_SHORT).show();
@@ -615,10 +615,16 @@ class WebviewManager {
 
     public class WebAppInterface {
         @JavascriptInterface
-        public void postMessage(String value){
-            Map<String, String> postMessageMap = new HashMap<>();
+        public void postMessage(String value) {
+            final Map<String, String> postMessageMap = new HashMap<>();
             postMessageMap.put("postMessage", value);
-            FlutterWebviewPlugin.channel.invokeMethod("onPostMessage", postMessageMap);
+            final Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    FlutterWebviewPlugin.channel.invokeMethod("onPostMessage", postMessageMap);
+                }
+            });
         }
     }
 }
