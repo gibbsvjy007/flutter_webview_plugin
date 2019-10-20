@@ -218,6 +218,7 @@ class FlutterWebviewPlugin {
         'height': rect.height,
       };
     }
+    await invokeAjaxInterceptor();
     await _channel.invokeMethod('launch', args);
   }
 

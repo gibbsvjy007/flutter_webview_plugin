@@ -374,6 +374,9 @@ class WebviewManager {
             boolean debuggingEnabled,
             boolean ajaxInterceptor
     ) {
+        if (ajaxInterceptor) {
+            initAjaxInterceptor();
+        }
         webView.getSettings().setJavaScriptEnabled(withJavascript);
         webView.getSettings().setBuiltInZoomControls(withZoom);
         webView.getSettings().setSupportZoom(withZoom);
@@ -432,9 +435,7 @@ class WebviewManager {
             webView.loadUrl(url);
         }
 
-        if (ajaxInterceptor) {
-            initAjaxInterceptor();
-        }
+
     }
 
     void reloadUrl(String url) {
