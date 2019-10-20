@@ -374,9 +374,6 @@ class WebviewManager {
             boolean debuggingEnabled,
             boolean ajaxInterceptor
     ) {
-        if (ajaxInterceptor) {
-            initAjaxInterceptor();
-        }
         webView.getSettings().setJavaScriptEnabled(withJavascript);
         webView.getSettings().setBuiltInZoomControls(withZoom);
         webView.getSettings().setSupportZoom(withZoom);
@@ -427,6 +424,10 @@ class WebviewManager {
 
         if (!scrollBar) {
             webView.setVerticalScrollBarEnabled(false);
+        }
+
+        if (ajaxInterceptor) {
+            initAjaxInterceptor();
         }
 
         if (headers != null) {
