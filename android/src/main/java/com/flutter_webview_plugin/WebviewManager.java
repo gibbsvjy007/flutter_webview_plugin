@@ -578,6 +578,9 @@ class WebviewManager {
             "}\n" +
             "function onReadyStateChangeReplacement() {\n" +
             "    console.log('HTTP request ready state changed... : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
+            "    if (window.Android && window.Android.postMessage) {\n" +
+            "       Android.postMessage(this.responseText);\n" +
+            "    }\n" +
             "   if (this.readyState === XMLHttpRequest.DONE) {\n" +
             "        if (this.responseText !== \"\" && this.responseText !== null) {\n" +
             "            if (this.responseText.indexOf('fareSessionUUID') !== -1) {\n" +
