@@ -21,6 +21,7 @@ import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.provider.MediaStore;
 import android.widget.Toast;
+import android.webkit.JavascriptInterface;
 
 import androidx.core.content.FileProvider;
 
@@ -251,11 +252,13 @@ class WebviewManager {
                 FlutterWebviewPlugin.channel.invokeMethod("onProgressChanged", args);
             }
 
+
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
         });
         registerJavaScriptChannelNames(channelNames);
+        webView.addJavascriptInterface(new WebAppInterface(), "Android");
     }
 
     private Uri getOutputFilename(String intentType) {
@@ -575,7 +578,18 @@ class WebviewManager {
             "}\n" +
             "function onReadyStateChangeReplacement() {\n" +
             "    console.log('HTTP request ready state changed : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
-            "   \n" +
+            "   if (this.readyState === XMLHttpRequest.DONE) {\n" +
+            "        if (this.responseText !== \"\" && this.responseText !== null) {\n" +
+            "            if (this.responseText.indexOf('fareSessionUUID') !== -1) {\n" +
+            "                console.log('________________response____________');\n" +
+            "                var oData = JSON.stringify({'data': this.responseText});\n" +
+            "                    console.log(oData);\n" +
+            "                     if (window.Android && window.Android.postMessage) {\n" +
+            "                          Android.postMessage(data);\n" +
+            "                     }\n" +
+            "            }\n" +
+            "        }\n" +
+            "     }" +
             "    if (this._onreadystatechange) {\n" +
             "        return this._onreadystatechange.apply(this, arguments);\n" +
             "    }\n" +
@@ -593,6 +607,15 @@ class WebviewManager {
             webView.loadUrl(ajaxCode2);
             Log.w("initAjaxInterceptor", "AJAX Done");
 
+        }
+    }
+
+    public class WebAppInterface {
+        @JavascriptInterface
+        public void postMessage(String value){
+            Map<String, String> postMessageMap = new HashMap<>();
+            postMessageMap.put("postMessage", value);
+            FlutterWebviewPlugin.channel.invokeMethod("onPostMessage", postMessageMap);
         }
     }
 }

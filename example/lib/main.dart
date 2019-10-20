@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
 //  WidgetsFlutterBinding.ensureInitialized();
   final flutterWebViewPlugin = FlutterWebviewPlugin();
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -50,7 +51,7 @@ class MyApp extends StatelessWidget {
             withLocalStorage: true,
             withJavascript: true,
             appCacheEnabled: false,
-withOverviewMode: true,
+            withOverviewMode: true,
             hidden: true,
             ajaxInterceptor: true,
             initialChild: Container(
@@ -126,6 +127,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   StreamSubscription<double> _onScrollXChanged;
 
+  StreamSubscription<String> _onMessage;
+
   final _urlCtrl = TextEditingController(text: selectedUrl);
 
   final _codeCtrl = TextEditingController(text: 'window.navigator.userAgent');
@@ -142,6 +145,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _urlCtrl.addListener(() {
       selectedUrl = _urlCtrl.text;
+    });
+
+    _onMessage = flutterWebViewPlugin.onPostMessage.listen((msg) {
+      if (mounted) {
+        setState(() {
+          _history.add('message: $msg');
+        });
+      }
     });
 
     // Add a listener to on destroy WebView, so you can make came actions.
@@ -220,6 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _onScrollYChanged.cancel();
 
     flutterWebViewPlugin.dispose();
+    _onMessage.cancel();
 
     super.dispose();
   }
