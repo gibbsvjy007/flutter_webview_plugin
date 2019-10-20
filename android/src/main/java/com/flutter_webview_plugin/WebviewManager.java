@@ -1,5 +1,6 @@
 package com.flutter_webview_plugin;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.annotation.TargetApi;
@@ -7,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.provider.MediaStore;
+import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
@@ -365,7 +368,8 @@ class WebviewManager {
             boolean useWideViewPort,
             String invalidUrlRegex,
             boolean geolocationEnabled,
-            boolean debuggingEnabled
+            boolean debuggingEnabled,
+            boolean ajaxInterceptor
     ) {
         webView.getSettings().setJavaScriptEnabled(withJavascript);
         webView.getSettings().setBuiltInZoomControls(withZoom);
@@ -423,6 +427,10 @@ class WebviewManager {
             webView.loadUrl(url, headers);
         } else {
             webView.loadUrl(url);
+        }
+
+        if (ajaxInterceptor) {
+            initAjaxInterceptor();
         }
     }
 
@@ -524,6 +532,67 @@ class WebviewManager {
     void stopLoading(MethodCall call, MethodChannel.Result result) {
         if (webView != null) {
             webView.stopLoading();
+        }
+    }
+
+    String ajaxCode = "javascript: window.onload=function(){" +
+            " ajaxInterceptor.showToast('testing!');" +
+            " }";
+    String ajaxCode1 = "javascript: " +
+            "(function(open, send) {  ajaxInterceptor.showToast('Hey Ajax Started now'); \n" +
+            "   var xhrOpenRequestUrl, xhrSendResponseUrl, responseData; \n" +
+            "   window.XMLHttpRequest.prototype.open = function(method, url, async, user, password) {  ajaxInterceptor.showToast('open'); " +
+            "      xhrOpenRequestUrl = url;  ajaxInterceptor.showToast(url);\n" +
+            "      open.apply(this, arguments);\n" +
+            "   };\n" +
+            "   window.XMLHttpRequest.prototype.send = function(data) { ajaxInterceptor.showToast('send'); \n" +
+            "      if (this.readyState == 4 && this.status >= 200 && this.status < 300) {\n" +
+            "         xhrSendResponseUrl = this.responseURL;\n" +
+            "         responseData = this.data; \n" +
+            "       ajaxInterceptor.showToast(this.readyState);     " +
+            " console.log('HTTP request ready state changed : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
+            "   }\n" +
+            "      send.apply(this, arguments);\n" +
+            "   }\n" +
+            " })(window.XMLHttpRequest.prototype.open, window.XMLHttpRequest.prototype.send)";
+
+    String ajaxCode2 = "javascript: var xx = new XMLHttpRequest(); " +
+            " ajaxInterceptor.showToast('ready'); " +
+            "var open = window.XMLHttpRequest.prototype.open,\n" +
+            "    send = window.XMLHttpRequest.prototype.send,\n" +
+            "    onReadyStateChange;\n" +
+            "function openReplacement(method, url, async, user, password) {\n" +
+            "    var syncMode = async !== false ? 'async' : 'sync'; ajaxInterceptor.showToast('OPEN'); \n" +
+            "    return open.apply(this, arguments);\n" +
+            "}\n" +
+            "function sendReplacement(data) {\n" +
+            "    ajaxInterceptor.showToast('SEND'); console.log('Sending HTTP request data : ', data);\n" +
+            "    if(this.onreadystatechange) {\n" +
+            "        this._onreadystatechange = this.onreadystatechange;\n" +
+            "    }\n" +
+            "    this.onreadystatechange = onReadyStateChangeReplacement;\n" +
+            "    return send.apply(this, arguments);\n" +
+            "}\n" +
+            "function onReadyStateChangeReplacement() {\n" +
+            "    console.log('HTTP request ready state changed : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
+            "   \n" +
+            "    if (this._onreadystatechange) {\n" +
+            "        return this._onreadystatechange.apply(this, arguments);\n" +
+            "    }\n" +
+            "}\n" +
+            "window.XMLHttpRequest.prototype.open = openReplacement;\n" +
+            "window.XMLHttpRequest.prototype.send = sendReplacement; ";
+
+    void initAjaxInterceptor() {
+        if (webView != null) {
+            Log.w("initAjaxInterceptor", "Method invoked");
+
+            webView.addJavascriptInterface(new AjaxInterceptor(context), "ajaxInterceptor");
+            Log.w("initAjaxInterceptor", "AJAX Start");
+            Toast.makeText(context, "AJAX Begin", Toast. LENGTH_SHORT).show();
+            webView.loadUrl(ajaxCode2);
+            Log.w("initAjaxInterceptor", "AJAX Done");
+
         }
     }
 }

@@ -4,6 +4,14 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
+void main() async {
+  print("Initializing.");
+  WidgetsFlutterBinding.ensureInitialized();
+  print("Done.");
+
+  runApp(MyApp());
+}
+
 const kAndroidUserAgent =
     'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
 
@@ -18,9 +26,8 @@ final Set<JavascriptChannel> jsChannels = [
       }),
 ].toSet();
 
-void main() => runApp(MyApp());
-
 class MyApp extends StatelessWidget {
+//  WidgetsFlutterBinding.ensureInitialized();
   final flutterWebViewPlugin = FlutterWebviewPlugin();
 
   @override
@@ -41,7 +48,11 @@ class MyApp extends StatelessWidget {
             ),
             withZoom: true,
             withLocalStorage: true,
+            withJavascript: true,
+            appCacheEnabled: false,
+withOverviewMode: true,
             hidden: true,
+            ajaxInterceptor: true,
             initialChild: Container(
               color: Colors.redAccent,
               child: const Center(
@@ -67,6 +78,12 @@ class MyApp extends StatelessWidget {
                     icon: const Icon(Icons.autorenew),
                     onPressed: () {
                       flutterWebViewPlugin.reload();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.print),
+                    onPressed: () {
+                      flutterWebViewPlugin.invokeAjaxInterceptor();
                     },
                   ),
                 ],

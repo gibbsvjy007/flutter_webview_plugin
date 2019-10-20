@@ -158,6 +158,7 @@ class FlutterWebviewPlugin {
     String invalidUrlRegex,
     bool geolocationEnabled,
     bool debuggingEnabled,
+    bool ajaxInterceptor
   }) async {
     final args = <String, dynamic>{
       'url': url,
@@ -181,6 +182,7 @@ class FlutterWebviewPlugin {
       'geolocationEnabled': geolocationEnabled ?? false,
       'withOverviewMode': withOverviewMode ?? false,
       'debuggingEnabled': debuggingEnabled ?? false,
+      'ajaxInterceptor': ajaxInterceptor ?? false
     };
 
     if (headers != null) {
@@ -225,6 +227,9 @@ class FlutterWebviewPlugin {
     _javascriptChannels.clear();
     await _channel.invokeMethod('close');
   }
+
+  /// invold ajax interceptor
+  Future<Null> invokeAjaxInterceptor() async => await _channel.invokeMethod('ajaxInterceptor');
 
   /// Reloads the WebView.
   Future<Null> reload() async => await _channel.invokeMethod('reload');

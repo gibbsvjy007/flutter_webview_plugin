@@ -58,7 +58,6 @@ public class BrowserClient extends WebViewClient {
 
         data.put("type", "finishLoad");
         FlutterWebviewPlugin.channel.invokeMethod("onState", data);
-
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

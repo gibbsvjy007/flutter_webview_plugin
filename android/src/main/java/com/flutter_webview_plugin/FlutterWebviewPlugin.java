@@ -14,6 +14,8 @@ import android.os.Build;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import android.util.Log;
+
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -82,6 +84,9 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             case "cleanCookies":
                 cleanCookies(call, result);
                 break;
+            case "ajaxInterceptor":
+                ajaxInterceptor(call, result);
+                break;
             default:
                 result.notImplemented();
                 break;
@@ -108,7 +113,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         String invalidUrlRegex = call.argument("invalidUrlRegex");
         boolean geolocationEnabled = call.argument("geolocationEnabled");
         boolean debuggingEnabled = call.argument("debuggingEnabled");
-
+        boolean ajaxInterceptor = call.argument("ajaxInterceptor");
         if (webViewManager == null || webViewManager.closed == true) {
             Map<String, Object> arguments = (Map<String, Object>) call.arguments;
             List<String> channelNames = new ArrayList();
@@ -140,7 +145,8 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
                 useWideViewPort,
                 invalidUrlRegex,
                 geolocationEnabled,
-                debuggingEnabled
+                debuggingEnabled,
+                ajaxInterceptor
         );
         result.success(null);
     }
@@ -263,6 +269,11 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             CookieManager.getInstance().removeAllCookie();
         }
         result.success(null);
+    }
+
+    private  void ajaxInterceptor(MethodCall call, final MethodChannel.Result result) {
+        Log.w("FlutterPlugin", "AJAX Done");
+        webViewManager.initAjaxInterceptor();
     }
 
     private int dp2px(Context context, float dp) {

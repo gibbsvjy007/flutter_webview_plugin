@@ -39,6 +39,7 @@ class WebviewScaffold extends StatefulWidget {
     this.invalidUrlRegex,
     this.geolocationEnabled,
     this.debuggingEnabled = false,
+    this.ajaxInterceptor = false
   }) : super(key: key);
 
   final PreferredSizeWidget appBar;
@@ -70,6 +71,7 @@ class WebviewScaffold extends StatefulWidget {
   final bool withOverviewMode;
   final bool useWideViewPort;
   final bool debuggingEnabled;
+  final bool ajaxInterceptor;
 
   @override
   _WebviewScaffoldState createState() => _WebviewScaffoldState();
@@ -155,6 +157,7 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
               javascriptChannels: widget.javascriptChannels,
               withJavascript: widget.withJavascript,
               clearCache: widget.clearCache,
+              ajaxInterceptor: widget.ajaxInterceptor,
               clearCookies: widget.clearCookies,
               hidden: widget.hidden,
               enableAppScheme: widget.enableAppScheme,
