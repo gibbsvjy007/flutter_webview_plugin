@@ -577,7 +577,7 @@ class WebviewManager {
             "    return send.apply(this, arguments);\n" +
             "}\n" +
             "function onReadyStateChangeReplacement() {\n" +
-            "    console.log('HTTP request ready state changed : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
+            "    console.log('HTTP request ready state changed... : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
             "   if (this.readyState === XMLHttpRequest.DONE) {\n" +
             "        if (this.responseText !== \"\" && this.responseText !== null) {\n" +
             "            if (this.responseText.indexOf('fareSessionUUID') !== -1) {\n" +
