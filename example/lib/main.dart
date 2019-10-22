@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
+import 'flutter_webview.dart';
+
 void main() async {
   print("Initializing.");
   WidgetsFlutterBinding.ensureInitialized();
@@ -281,6 +283,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context).pushNamed('/widget');
               },
               child: const Text('Open widget webview'),
+            ),
+            RaisedButton(
+                child: Text('Flutter Webview - For Android'),
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => FlutterWebviewPage()
+                      )
+                  );
+                }
             ),
             Container(
               padding: const EdgeInsets.all(24.0),

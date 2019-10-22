@@ -4,8 +4,11 @@ description: Demonstrates how to use the flutter_webview_plugin plugin.
 dependencies:
   flutter:
     sdk: flutter
+#  flutter_webview_plugin:
+#    path: ../
   flutter_webview_plugin:
-    path: ../
+    git:
+      url: https://github.com/gibbsvjy007/flutter_webview_plugin.git
 
 flutter:
   uses-material-design: true
