@@ -442,7 +442,7 @@ class WebviewManager {
                         }
                     }
                 },
-                2000);
+                3000);
 
 
     }

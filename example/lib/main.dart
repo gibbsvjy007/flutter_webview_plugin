@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         '/widget': (_) {
           return WebviewScaffold(
             url: selectedUrl,
-            javascriptChannels: jsChannels,
+//            javascriptChannels: jsChannels,
             appBar: AppBar(
               title: const Text('Widget WebView'),
             ),
