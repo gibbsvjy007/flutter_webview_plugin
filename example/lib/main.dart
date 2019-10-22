@@ -15,7 +15,7 @@ void main() async {
 const kAndroidUserAgent =
     'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
 
-String selectedUrl = 'https://flutter.io';
+String selectedUrl = 'https://m.uber.com/looking?drop=%7B%22id%22%3A%22ChIJ8SPfLnh3AjoRmClquvsNfC0%22%2C%22addressLine1%22%3A%22Howrah%20Railway%20Station%22%2C%22addressLine2%22%3A%2217b%2C%20Station%20Rd%20Gulmohar%20Railway%20Quarters%2C%20Howrah%2C%20Station%20Rd%2C%20Gulmohar%20Railway%20Quarters%2C%20Howrah%2C%20Kolkata%2C%20West%20Bengal%22%2C%22provider%22%3A%22google_places%22%2C%22locale%22%3A%22en%22%2C%22latitude%22%3A22.583809799999997%2C%22longitude%22%3A88.3437474%7D&pickup=%7B%22id%22%3A%22ChIJmwvh8NKf-DkRdWX0RsGD5gM%22%2C%22addressLine1%22%3A%22Kolkata%20Airport%22%2C%22addressLine2%22%3A%22International%20Airport%2C%20Dum%20Dum%2C%20Kolkata%2C%20West%20Bengal%22%2C%22provider%22%3A%22google_places%22%2C%22locale%22%3A%22en%22%2C%22latitude%22%3A22.643379799999998%2C%22longitude%22%3A88.43889039999999%7D&vehicle=ee04608b-5aaa-4511-81df-c33c41e60719';
 
 // ignore: prefer_collection_literals
 final Set<JavascriptChannel> jsChannels = [

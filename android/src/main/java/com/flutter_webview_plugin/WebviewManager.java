@@ -358,8 +358,8 @@ class WebviewManager {
             boolean hidden,
             boolean clearCookies,
             String userAgent,
-            String url,
-            Map<String, String> headers,
+            final String url,
+            final Map<String, String> headers,
             boolean withZoom,
             boolean displayZoomControls,
             boolean withLocalStorage,
@@ -426,16 +426,25 @@ class WebviewManager {
             webView.setVerticalScrollBarEnabled(false);
         }
 
-        if (headers != null) {
-            webView.loadUrl(url, headers);
-        } else {
-            webView.loadUrl(url);
-        }
-
         if (ajaxInterceptor) {
             Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
             initAjaxInterceptor();
         }
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        Log.i("tag", "This'll run 300 milliseconds later");
+                        if (headers != null) {
+                            webView.loadUrl(url, headers);
+                        } else {
+                            webView.loadUrl(url);
+                        }
+                    }
+                },
+                2000);
+
+
     }
 
     void reloadUrl(String url) {
@@ -581,18 +590,15 @@ class WebviewManager {
             "    return send.apply(this, arguments);\n" +
             "}\n" +
             "function onReadyStateChangeReplacement() {\n" +
-            "    console.log('HTTP request ready state changed... : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
-            "    if (window.Android && window.Android.postMessage) {\n" +
-            "       Android.postMessage(this.responseText);\n" +
-            "    }\n" +
             "   if (this.readyState === XMLHttpRequest.DONE) {\n" +
             "        if (this.responseText !== \"\" && this.responseText !== null) {\n" +
+            "          console.log('HTTP request ready state changed... : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
             "            if (this.responseText.indexOf('fareSessionUUID') !== -1) {\n" +
             "                console.log('________________response____________');\n" +
             "                var oData = JSON.stringify({'data': this.responseText});\n" +
             "                    console.log(oData);\n" +
             "                     if (window.Android && window.Android.postMessage) {\n" +
-            "                          Android.postMessage(data);\n" +
+            "                          Android.postMessage(this.responseText);\n" +
             "                     }\n" +
             "            }\n" +
             "        }\n" +
