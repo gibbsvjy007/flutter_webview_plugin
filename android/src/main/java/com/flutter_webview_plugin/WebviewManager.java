@@ -372,7 +372,7 @@ class WebviewManager {
             String invalidUrlRegex,
             boolean geolocationEnabled,
             boolean debuggingEnabled,
-            boolean ajaxInterceptor
+            final boolean ajaxInterceptor
     ) {
         webView.getSettings().setJavaScriptEnabled(withJavascript);
         webView.getSettings().setBuiltInZoomControls(withZoom);
@@ -426,10 +426,19 @@ class WebviewManager {
             webView.setVerticalScrollBarEnabled(false);
         }
 
-        if (ajaxInterceptor) {
-            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
-            initAjaxInterceptor();
-        }
+
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        Log.i("tag", "This'll run 300 milliseconds later");
+                        if (ajaxInterceptor) {
+                            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
+                            initAjaxInterceptor();
+                        }
+                    }
+                },
+                1000);
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -442,7 +451,7 @@ class WebviewManager {
                         }
                     }
                 },
-                3000);
+                2000);
 
 
     }
@@ -571,49 +580,44 @@ class WebviewManager {
 
     String ajaxCode2 = "javascript: var xx = new XMLHttpRequest(); " +
             " ajaxInterceptor.showToast('ready'); " +
-            "setTimeout(function(){ \n" +
-            " ajaxInterceptor.showToast('after timeout'); " +
             "var open = window.XMLHttpRequest.prototype.open,\n" +
-                "    send = window.XMLHttpRequest.prototype.send,\n" +
-                "    onReadyStateChange;\n" +
-                "function openReplacement(method, url, async, user, password) {\n" +
-                "    var syncMode = async !== false ? 'async' : 'sync'; ajaxInterceptor.showToast('OPEN'); \n" +
-                " if (url === '/api/getFareEstimates') {\n" +
-                "        console.log('Preparing ' + syncMode + ' HTTP request : ' + method + ' ' + url);\n" +
-                " }"+
-                "    return open.apply(this, arguments);\n" +
-                "}\n" +
-                "function sendReplacement(data) {\n" +
-                "    ajaxInterceptor.showToast('SEND'); console.log('Sending HTTP request data : ', data);\n" +
-                "    if(this.onreadystatechange) {\n" +
-                "        this._onreadystatechange = this.onreadystatechange;\n" +
-                "    }\n" +
-                "    this.onreadystatechange = onReadyStateChangeReplacement;\n" +
-                "    return send.apply(this, arguments);\n" +
-                "}\n" +
-                "function onReadyStateChangeReplacement() {\n" +
-                "   if (this.readyState === XMLHttpRequest.DONE) {\n" +
-                "        if (this.responseText !== \"\" && this.responseText !== null) {\n" +
-                "          console.log('HTTP request ready state changed... : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
-                "            if (this.responseText.indexOf('fareSessionUUID') !== -1) {\n" +
-                "                console.log('________________response____________');\n" +
-                "                var oData = JSON.stringify({'data': this.responseText});\n" +
-                "                    console.log(oData);\n" +
-                "                     if (window.Android && window.Android.postMessage) {\n" +
-                "                          Android.postMessage(this.responseText);\n" +
-                "                     }\n" +
-                "            }\n" +
-                "        }\n" +
-                "     }" +
-                "    if (this._onreadystatechange) {\n" +
-                "        return this._onreadystatechange.apply(this, arguments);\n" +
-                "    }\n" +
-                "}\n" +
-                "window.XMLHttpRequest.prototype.open = openReplacement;\n" +
-                "window.XMLHttpRequest.prototype.send = sendReplacement; "+
-            "},1500);";
-
-
+            "    send = window.XMLHttpRequest.prototype.send,\n" +
+            "    onReadyStateChange;\n" +
+            "function openReplacement(method, url, async, user, password) {\n" +
+            "    var syncMode = async !== false ? 'async' : 'sync'; ajaxInterceptor.showToast('OPEN'); \n" +
+            " if (url === '/api/getFareEstimates') {\n" +
+            "        console.log('Preparing ' + syncMode + ' HTTP request : ' + method + ' ' + url);\n" +
+            " }"+
+            "    return open.apply(this, arguments);\n" +
+            "}\n" +
+            "function sendReplacement(data) {\n" +
+            "    ajaxInterceptor.showToast('SEND'); console.log('Sending HTTP request data : ', data);\n" +
+            "    if(this.onreadystatechange) {\n" +
+            "        this._onreadystatechange = this.onreadystatechange;\n" +
+            "    }\n" +
+            "    this.onreadystatechange = onReadyStateChangeReplacement;\n" +
+            "    return send.apply(this, arguments);\n" +
+            "}\n" +
+            "function onReadyStateChangeReplacement() {\n" +
+            "   if (this.readyState === XMLHttpRequest.DONE) {\n" +
+            "        if (this.responseText !== \"\" && this.responseText !== null) {\n" +
+            "          console.log('HTTP request ready state changed... : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
+            "            if (this.responseText.indexOf('fareSessionUUID') !== -1) {\n" +
+            "                console.log('________________response____________');\n" +
+            "                var oData = JSON.stringify({'data': this.responseText});\n" +
+            "                    console.log(oData);\n" +
+            "                     if (window.Android && window.Android.postMessage) {\n" +
+            "                          Android.postMessage(this.responseText);\n" +
+            "                     }\n" +
+            "            }\n" +
+            "        }\n" +
+            "     }" +
+            "    if (this._onreadystatechange) {\n" +
+            "        return this._onreadystatechange.apply(this, arguments);\n" +
+            "    }\n" +
+            "}\n" +
+            "window.XMLHttpRequest.prototype.open = openReplacement;\n" +
+            "window.XMLHttpRequest.prototype.send = sendReplacement; ";
 
     void initAjaxInterceptor() {
         if (webView != null) {

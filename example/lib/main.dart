@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
             withZoom: true,
             withLocalStorage: true,
             withJavascript: true,
-            appCacheEnabled: false,
+            appCacheEnabled: true,
             withOverviewMode: true,
             hidden: true,
             ajaxInterceptor: true,
