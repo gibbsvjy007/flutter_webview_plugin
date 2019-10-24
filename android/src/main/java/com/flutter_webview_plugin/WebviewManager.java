@@ -428,18 +428,22 @@ class WebviewManager {
 
 
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        Log.i("tag", "This'll run 300 milliseconds later");
-                        if (ajaxInterceptor) {
-                            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
-                            initAjaxInterceptor();
-                        }
-                    }
-                },
-                1000);
 
+//                new Runnable() {
+//                    public void run() {
+//                        Log.i("tag", "This'll run 300 milliseconds later");
+//                        if (ajaxInterceptor) {
+//                            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
+//                            initAjaxInterceptor();
+//                        }
+//                    }
+//                },
+//                1000);
+
+        if (ajaxInterceptor) {
+            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
+            initAjaxInterceptor();
+        }
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
