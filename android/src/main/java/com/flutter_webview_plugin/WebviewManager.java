@@ -444,20 +444,18 @@ class WebviewManager {
             Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
             initAjaxInterceptor();
         }
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        Log.i("tag", "This'll run 300 milliseconds later");
-                        if (headers != null) {
-                            webView.loadUrl(url, headers);
-                        } else {
-                            webView.loadUrl(url);
-                        }
-                    }
-                },
-                2000);
-
-
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.i("tag", "This'll run 300 milliseconds later");
+                if (headers != null) {
+                    webView.loadUrl(url, headers);
+                } else {
+                    webView.loadUrl(url);
+                }
+            }
+        }, 2000);
     }
 
     void reloadUrl(String url) {
