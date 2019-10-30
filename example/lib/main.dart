@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:flutter_webview_plugin_example/ola_webview.dart';
 
 import 'flutter_webview.dart';
 
@@ -285,13 +287,33 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Open widget webview'),
             ),
             RaisedButton(
-                child: Text('Flutter Webview - For Android'),
-                onPressed: () {
+              onPressed: () {
+                var givenJS = rootBundle.loadString('assets/zabo_flutter_webview.js');
+                return givenJS.then((String jsCode) {
+                  print(jsCode);
                   Navigator.of(context).push(
                       MaterialPageRoute(
-                          builder: (BuildContext context) => FlutterWebviewPage()
+                          builder: (BuildContext context) => OlaWebView(jsCode: jsCode)
                       )
                   );
+                });
+              },
+              child: const Text('Open OLA Webview'),
+            ),
+            RaisedButton(
+                child: Text('Flutter Webview - For Android'),
+                onPressed: () async {
+//                   jsCode = await rootBundle.loadString('assets/zabo_flutter_webview.js');
+                   var givenJS = rootBundle.loadString('assets/zabo_flutter_webview.js');
+                   return givenJS.then((String jsCode) {
+                     print(jsCode);
+                     Navigator.of(context).push(
+                         MaterialPageRoute(
+                             builder: (BuildContext context) => FlutterWebviewPage(jsCode: jsCode)
+                         )
+                     );
+                   });
+
                 }
             ),
             Container(

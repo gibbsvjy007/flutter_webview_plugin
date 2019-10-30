@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
-class FlutterWebviewPage extends StatefulWidget {
+class OlaWebView extends StatefulWidget {
   final String jsCode;
-  FlutterWebviewPage({this.jsCode});
+  OlaWebView({this.jsCode});
 
   @override
-  _FlutterWebviewPageState createState() => _FlutterWebviewPageState();
+  _OlaWebViewState createState() => _OlaWebViewState();
 }
 
-class _FlutterWebviewPageState extends State<FlutterWebviewPage> {
+class _OlaWebViewState extends State<OlaWebView> {
   final flutterWebviewPlugin = new FlutterWebviewPlugin();
-  String hitUrl =
-      'https://m.uber.com/looking?drop=%7B%22id%22%3A%22ChIJsbUi45N3AjoR9VdBHymQLiU%22%2C%22addressLine1%22%3A%22Howrah%20Railway%20Station%22%2C%22addressLine2%22%3A%22Howrah%2C%20West%20Bengal%22%2C%22provider%22%3A%22google_places%22%2C%22locale%22%3A%22en%22%2C%22latitude%22%3A22.5830002%2C%22longitude%22%3A88.3372909%7D&pickup=%7B%22id%22%3A%22ChIJmwvh8NKf-DkRdWX0RsGD5gM%22%2C%22addressLine1%22%3A%22Kolkata%20Airport%22%2C%22addressLine2%22%3A%22International%20Airport%2C%20Dum%20Dum%2C%20Kalkutta%2C%20Westbengalen%22%2C%22provider%22%3A%22google_places%22%2C%22locale%22%3A%22de%22%2C%22latitude%22%3A22.643379799999998%2C%22longitude%22%3A88.43889039999999%7D';
+  String hitUrl = 'https://book.olacabs.com/?pickup_name=Kolkata%20Airport%2C%20International%20Airport%20Dum%20Dum%20Kolkata%20West%20Bengal%20India&lat=22.6433439&lng=88.43940529999999&drop_lat=22.5830002&drop_lng=88.3372909&drop_name=Howrah%20Railway%20Station%2C%20Howrah%20West%20Bengal%20India&pickup=';
   StreamSubscription<String> _onUrlChanged;
   StreamSubscription<String> _onMessage;
   bool invokedAjax = false;
