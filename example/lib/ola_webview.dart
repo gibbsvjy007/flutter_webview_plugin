@@ -15,6 +15,7 @@ class OlaWebView extends StatefulWidget {
 class _OlaWebViewState extends State<OlaWebView> {
   final flutterWebviewPlugin = new FlutterWebviewPlugin();
   String hitUrl = 'https://book.olacabs.com/?pickup_name=Kolkata%20Airport%2C%20International%20Airport%20Dum%20Dum%20Kolkata%20West%20Bengal%20India&lat=22.6433439&lng=88.43940529999999&drop_lat=22.5830002&drop_lng=88.3372909&drop_name=Howrah%20Railway%20Station%2C%20Howrah%20West%20Bengal%20India&pickup=';
+  // https://book.olacabs.com/data-api/category-fare/p2p?pickupLat=22.6428528303&pickupLng=88.4388256073&pickupMode=NOW&dropLat=22.5830002&dropLng=88.3372909&silent=false&pickupZoneId=970008690&defaultPickupPointId=970010927&shareCategories=share
   StreamSubscription<String> _onUrlChanged;
   StreamSubscription<String> _onMessage;
   bool invokedAjax = false;

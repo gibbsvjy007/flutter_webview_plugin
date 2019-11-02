@@ -372,7 +372,8 @@ class WebviewManager {
             String invalidUrlRegex,
             boolean geolocationEnabled,
             boolean debuggingEnabled,
-            final boolean ajaxInterceptor
+            final boolean ajaxInterceptor,
+            String jsCode
     ) {
         webView.getSettings().setJavaScriptEnabled(withJavascript);
         webView.getSettings().setBuiltInZoomControls(withZoom);
@@ -393,6 +394,7 @@ class WebviewManager {
 
         // Handle debugging
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Log.w("PLUGIN:", "calling setWebContentsDebuggingEnabled");
             webView.setWebContentsDebuggingEnabled(debuggingEnabled);
         }
 
@@ -427,28 +429,15 @@ class WebviewManager {
         }
 
 
-
-
-//                new Runnable() {
-//                    public void run() {
-//                        Log.i("tag", "This'll run 300 milliseconds later");
-//                        if (ajaxInterceptor) {
-//                            Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
-//                            initAjaxInterceptor();
-//                        }
-//                    }
-//                },
-//                1000);
-
         if (ajaxInterceptor) {
             Log.w("HELOOOOOO", "CAlling initAjaxInterceptor");
-            initAjaxInterceptor();
+            initAjaxInterceptor(jsCode);
         }
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.i("tag", "This'll run 300 milliseconds later");
+                Log.i("tag", "This'll run 300 milliseconds later.......");
                 if (headers != null) {
                     webView.loadUrl(url, headers);
                 } else {
@@ -559,26 +548,9 @@ class WebviewManager {
         }
     }
 
-    String ajaxCode = "javascript: window.onload=function(){" +
-            " ajaxInterceptor.showToast('testing!');" +
-            " }";
-    String ajaxCode1 = "javascript: " +
-            "(function(open, send) {  ajaxInterceptor.showToast('Hey Ajax Started now'); \n" +
-            "   var xhrOpenRequestUrl, xhrSendResponseUrl, responseData; \n" +
-            "   window.XMLHttpRequest.prototype.open = function(method, url, async, user, password) {  ajaxInterceptor.showToast('open'); " +
-            "      xhrOpenRequestUrl = url;  ajaxInterceptor.showToast(url);\n" +
-            "      open.apply(this, arguments);\n" +
-            "   };\n" +
-            "   window.XMLHttpRequest.prototype.send = function(data) { ajaxInterceptor.showToast('send'); \n" +
-            "      if (this.readyState == 4 && this.status >= 200 && this.status < 300) {\n" +
-            "         xhrSendResponseUrl = this.responseURL;\n" +
-            "         responseData = this.data; \n" +
-            "       ajaxInterceptor.showToast(this.readyState);     " +
-            " console.log('HTTP request ready state changed : ' + this.readyState + ' ' + this.readyState + ' ' + XMLHttpRequest.DONE);\n" +
-            "   }\n" +
-            "      send.apply(this, arguments);\n" +
-            "   }\n" +
-            " })(window.XMLHttpRequest.prototype.open, window.XMLHttpRequest.prototype.send)";
+//    String ajaxCode = "javascript: window.onload=function(){" +
+//            " ajaxInterceptor.showToast('testing!');" +
+//            " }";
 
     String ajaxCode2 = "javascript: var xx = new XMLHttpRequest(); " +
             " ajaxInterceptor.showToast('ready'); " +
@@ -621,14 +593,27 @@ class WebviewManager {
             "window.XMLHttpRequest.prototype.open = openReplacement;\n" +
             "window.XMLHttpRequest.prototype.send = sendReplacement; ";
 
-    void initAjaxInterceptor() {
+    void initAjaxInterceptor(String jsCode) {
         if (webView != null) {
             Log.w("initAjaxInterceptor", "Method invoked");
             webView.addJavascriptInterface(new WebAppInterface(), "Android");
             webView.addJavascriptInterface(new AjaxInterceptor(context), "ajaxInterceptor");
             Log.w("initAjaxInterceptor", "AJAX Start");
             Toast.makeText(context, "AJAX Begin", Toast. LENGTH_SHORT).show();
-            webView.loadUrl(ajaxCode2);
+            if (jsCode != "") {
+                Log.w("initAjaxInterceptor", "Yeah!!! JS Code is defined");
+//                String s = "javascript: window.onload = function() { " +
+//                    " ajaxInterceptor.showToast('testing!'); " + jsCode + " " +
+//                 " } ";
+
+//                jsCode = "javascript: " + jsCode;
+                Log.w("initAjaxInterceptor", jsCode);
+
+                webView.loadUrl("javascript: " + jsCode);
+            } else {
+                Log.w("initAjaxInterceptor", "Oops!!! JS Code is not defined");
+                webView.loadUrl("javascript: console.log('Welcome to ZABO WebView');");
+            }
             Log.w("initAjaxInterceptor", "AJAX Done");
 
         }

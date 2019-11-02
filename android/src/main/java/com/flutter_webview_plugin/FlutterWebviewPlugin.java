@@ -114,6 +114,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         boolean geolocationEnabled = call.argument("geolocationEnabled");
         boolean debuggingEnabled = call.argument("debuggingEnabled");
         boolean ajaxInterceptor = call.argument("ajaxInterceptor");
+        String jsCode = call.argument("jsCode");
         if (webViewManager == null || webViewManager.closed == true) {
             Map<String, Object> arguments = (Map<String, Object>) call.arguments;
             List<String> channelNames = new ArrayList();
@@ -147,7 +148,8 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
                 invalidUrlRegex,
                 geolocationEnabled,
                 debuggingEnabled,
-                ajaxInterceptor
+                ajaxInterceptor,
+                jsCode
         );
         result.success(null);
     }
@@ -273,8 +275,9 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     }
 
     private  void ajaxInterceptor(MethodCall call, final MethodChannel.Result result) {
-        Log.w("FlutterPlugin", "AJAX Done");
-        webViewManager.initAjaxInterceptor();
+        String jsCode = call.argument("jsCode");
+        Log.w("FlutterPlugin", jsCode);
+        webViewManager.initAjaxInterceptor(jsCode);
     }
 
     private int dp2px(Context context, float dp) {
