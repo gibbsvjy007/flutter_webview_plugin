@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +20,8 @@ class _OlaWebViewState extends State<OlaWebView> {
   StreamSubscription<String> _onUrlChanged;
   StreamSubscription<String> _onMessage;
   bool invokedAjax = false;
+  Uint8List imageInMemory;
+
   @override
   void initState() {
     super.initState();
@@ -66,28 +69,112 @@ class _OlaWebViewState extends State<OlaWebView> {
     super.didChangeDependencies();
   }
 
+  Future<Uint8List> _capturePng() async {
+    try {
+      print("_capturePng_____________");
+      Uint8List pngData = await flutterWebviewPlugin.takeScreenshot();
+      print("_________________after image");
+      print(pngData);
+      setState(() {
+        imageInMemory = pngData;
+      });
+      showDialog(context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Center(child: Text('Yuppy', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),textAlign: TextAlign.center,)),
+              contentPadding: const EdgeInsets.all(15.0),
+              content:  Container(decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey)
+              ),
+                height: MediaQuery.of(context).size.height - 200,
+                width: MediaQuery.of(context).size.width - 30,
+//              child: _imageFile != null ? Image.file(_imageFile) : Container(),
+                child: imageInMemory != null
+                    ? Container(
+                    child: Image.memory(imageInMemory),
+                    margin: const EdgeInsets.all(10))
+                    : Container(),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Close'))
+
+              ],
+            );
+          });
+      return pngData;
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    return WebviewScaffold(
-      url: hitUrl,
-      appBar: AppBar(
-        title: const Text('Uber'),
-      ),
-      withZoom: true,
-      appCacheEnabled: false,
-      withJavascript: true,
-      withOverviewMode: true,
-      hidden: true,
-      jsCode: widget.jsCode.toString(),
-      withLocalStorage: true,
-      ajaxInterceptor: true,
-      initialChild: Container(
-        color: Colors.redAccent,
-        child: const Center(
-          child: Text('Waiting.....'),
+    return Column(
+      children: <Widget>[
+        RaisedButton(
+          child: const Text('capture Image'),
+          onPressed: _capturePng,
         ),
-      ),
+        Expanded(
+          child: WebviewScaffold(
+            url: hitUrl,
+            appBar: AppBar(
+              title: const Text('Uber'),
+            ),
+            withZoom: true,
+            appCacheEnabled: false,
+            withJavascript: true,
+            withOverviewMode: true,
+            hidden: true,
+            jsCode: widget.jsCode.toString(),
+            withLocalStorage: true,
+            ajaxInterceptor: true,
+            initialChild: Container(
+              color: Colors.redAccent,
+              child: const Center(
+                child: Text('Waiting.....'),
+              ),
+            ),
+            bottomNavigationBar: BottomAppBar(
+              child: Row(
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios),
+                    onPressed: () {
+                      flutterWebviewPlugin.goBack();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios),
+                    onPressed: () {
+                      flutterWebviewPlugin.goForward();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.autorenew),
+                    onPressed: () {
+                      flutterWebviewPlugin.reload();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.camera_alt),
+                    onPressed: () async {
+                      print('takeScreenshot');
+                      _capturePng();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

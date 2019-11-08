@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import android.util.Log;
-
+import android.view.View;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -32,17 +32,18 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     static MethodChannel channel;
     private static final String CHANNEL_NAME = "flutter_webview_plugin";
     private static final String JS_CHANNEL_NAMES_FIELD = "javascriptChannelNames";
-
+    private View containerView;
     public static void registerWith(PluginRegistry.Registrar registrar) {
         channel = new MethodChannel(registrar.messenger(), CHANNEL_NAME);
-        final FlutterWebviewPlugin instance = new FlutterWebviewPlugin(registrar.activity(), registrar.activeContext());
+        final FlutterWebviewPlugin instance = new FlutterWebviewPlugin(registrar.activity(), registrar.activeContext(), registrar.view());
         registrar.addActivityResultListener(instance);
         channel.setMethodCallHandler(instance);
     }
 
-    private FlutterWebviewPlugin(Activity activity, Context context) {
+    private FlutterWebviewPlugin(Activity activity, Context context, View containerView) {
         this.activity = activity;
         this.context = context;
+        this.containerView = containerView;
     }
 
     @Override
@@ -87,6 +88,9 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
             case "ajaxInterceptor":
                 ajaxInterceptor(call, result);
                 break;
+            case "takeScreenshot":
+                takeScreenshot(call, result, containerView);
+                break;
             default:
                 result.notImplemented();
                 break;
@@ -114,6 +118,7 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
         boolean geolocationEnabled = call.argument("geolocationEnabled");
         boolean debuggingEnabled = call.argument("debuggingEnabled");
         boolean ajaxInterceptor = call.argument("ajaxInterceptor");
+
         String jsCode = call.argument("jsCode");
         if (webViewManager == null || webViewManager.closed == true) {
             Map<String, Object> arguments = (Map<String, Object>) call.arguments;
@@ -184,6 +189,13 @@ public class FlutterWebviewPlugin implements MethodCallHandler, PluginRegistry.A
     private void close(MethodCall call, MethodChannel.Result result) {
         if (webViewManager != null) {
             webViewManager.close(call, result);
+            webViewManager = null;
+        }
+    }
+
+    private void takeScreenshot(MethodCall call, MethodChannel.Result result, View containerView) {
+        if (webViewManager != null) {
+            webViewManager.takeScreenshot(result, containerView);
             webViewManager = null;
         }
     }

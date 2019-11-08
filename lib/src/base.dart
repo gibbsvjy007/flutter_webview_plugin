@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -270,6 +271,13 @@ class FlutterWebviewPlugin {
   // Stops current loading process
   Future<Null> stopLoading() async =>
       await _channel.invokeMethod('stopLoading');
+
+  Future<Uint8List> takeScreenshot() async {
+    Map<String, dynamic> args = <String, dynamic>{};
+    args.putIfAbsent('uuid', () => DateTime.now().millisecondsSinceEpoch);
+    print(args.toString());
+    return await _channel.invokeMethod('takeScreenshot', args);
+  }
 
   /// Close all Streams
   void dispose() {

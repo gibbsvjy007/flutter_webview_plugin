@@ -22,7 +22,7 @@ import android.widget.FrameLayout;
 import android.provider.MediaStore;
 import android.widget.Toast;
 import android.webkit.JavascriptInterface;
-import android.os.Handler;
+import com.flutter_webview_plugin.InAppWebView.InAppWebView;
 import android.os.Looper;
 import androidx.core.content.FileProvider;
 
@@ -340,6 +340,14 @@ class WebviewManager {
         }
     }
 
+    void takeScreenshot(MethodChannel.Result result, View containerView) {
+        Log.w("takeScreenshot", "method invoked");
+
+        InAppWebView inAppWebView = new InAppWebView(context);
+        inAppWebView.takeScreenshot(result, containerView);
+        Log.w("takeScreenshot", "after screenshot");
+    }
+
     private void clearCache() {
         webView.clearCache(true);
         webView.clearFormData();
@@ -391,11 +399,14 @@ class WebviewManager {
         webView.getSettings().setAllowUniversalAccessFromFileURLs(allowFileURLs);
 
         webView.getSettings().setUseWideViewPort(useWideViewPort);
-
         // Handle debugging
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Log.w("PLUGIN:", "calling setWebContentsDebuggingEnabled");
             webView.setWebContentsDebuggingEnabled(debuggingEnabled);
+            Log.w("PLUGIN:", "calling setAllowFileAccess");
+
+            webView.getSettings().setAllowFileAccess(true);
+            webView.getSettings().setAllowContentAccess(true);
         }
 
         webViewClient.updateInvalidUrlRegex(invalidUrlRegex);
